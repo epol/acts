@@ -26,7 +26,7 @@
 #
 
 CXX=g++ -std=gnu++11
-CPPFLAGS=-Og -Wall -Wextra -pedantic
+CPPFLAGS=-g -Og -Wall -Wextra -pedantic
 OBJS=main.o simulator.o utilities.o
 
 build: $(OBJS)
