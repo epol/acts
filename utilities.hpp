@@ -41,6 +41,7 @@ public:
     // TODO: operators
     friend Vec3D operator* (const double lambda, const Vec3D vec);
     friend Vec3D operator+ (const Vec3D a, const Vec3D b);
+    friend Vec3D operator- (const Vec3D a);
     friend Vec3D operator- (const Vec3D a, const Vec3D b);
     friend Vec3D operator^ (const Vec3D a, const Vec3D b);
 };

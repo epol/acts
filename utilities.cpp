@@ -39,9 +39,14 @@ Vec3D operator+ (const Vec3D a, const Vec3D b)
     return Vec3D(a.x+b.x, a.y+b.y, a.z+b.z);
 }
 
+Vec3D operator- (const Vec3D a)
+{
+    return -1 * a;
+}
+
 Vec3D operator- (const Vec3D a, const Vec3D b)
 {
-    return a + ( -1 * b );
+    return a + ( -b );
 }
 
 Vec3D operator^ (const Vec3D a, const Vec3D b)
