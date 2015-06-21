@@ -33,3 +33,23 @@ Vec3D operator* (const double lambda, const Vec3D vec)
 {
     return Vec3D(lambda* vec.x, lambda* vec.y, lambda* vec.z);
 }
+
+Vec3D operator+ (const Vec3D a, const Vec3D b)
+{
+    return Vec3D(a.x+b.x, a.y+b.y, a.z+b.z);
+}
+
+Vec3D operator- (const Vec3D a, const Vec3D b)
+{
+    return a + ( -1 * b );
+}
+
+Vec3D operator^ (const Vec3D a, const Vec3D b)
+{
+    return Vec3D(
+                    a.y*b.z - a.z*b.y,
+                    a.z*b.x - a.x*b.z,
+                    a.x*b.y - a.y*b.x
+                );
+}
+
