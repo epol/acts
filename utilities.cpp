@@ -1,5 +1,5 @@
 /* 
- * utilities.hpp
+ * utilities.cpp
  * 
  * This file is part of acts
  * 
@@ -26,47 +26,10 @@
  * SOFTWARE.
  */
 
+#include "utilities.hpp"
 
-class Vec3D
+
+Vec3D operator* (const double lambda, const Vec3D vec)
 {
-public:
-    double x;
-    double y;
-    double z;
-    
-    inline Vec3D(double x, double y, double z) : x(x), y(y), z(z) {}
-    // TODO: operators
-    friend Vec3D operator* (const double lambda, const Vec3D vec);
-};
-
-class Launch
-{
-public:
-    double theta;
-    double phi;
-    double speed;
-    
-    inline Launch(double theta, double phi, double speed) : 
-        theta(theta), phi(phi), speed(speed) {}
-};
-
-
-class Position
-{
-public:
-    double x;
-    double y;
-    
-    inline Position(double x, double y) : x(x), y(y) {}
-};
-
-class Event
-{
-public:
-    Launch launch;
-    Position position;
-    double time;
-    
-    inline Event(Launch launch, Position position, double time=0) :
-        launch(launch), position(position), time(time) {}
-};
+    return Vec3D(lambda* vec.x, lambda* vec.y, lambda* vec.z);
+}
