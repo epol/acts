@@ -59,9 +59,10 @@ public:
     inline Simulator(double dtime, double frictionC, double frictionA): dtime(dtime), frictionC(frictionC), frictionA(frictionA) {}
     
     inline void set_latitude(double latitude)
+    // Wants latitude in degrees, stores it in radians
     {
-        this->latitude = latitude;
-        this->omega = modOmega * Vec3D(0, cos(latitude), sin(latitude));
+        this->latitude = latitude * M_PI/180;
+        this->omega = modOmega * Vec3D(0, cos(this->latitude), sin(this->latitude));
     }
     
     inline void set_friction(double frictionC, double frictionA)
