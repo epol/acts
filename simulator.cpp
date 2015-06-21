@@ -28,6 +28,7 @@
 
 #include <cmath>
 #include "simulator.hpp"
+#include "utilities.hpp"
 
 Event Simulator::simulate (Launch launch)
 {
@@ -47,5 +48,5 @@ Event Simulator::simulate (Launch launch)
     }
     while (position.z > 0);
     
-    return Event(launch,Position(position.x,position.y),t);
+    return Event(launch,Target(position.x,position.y),t);
 }

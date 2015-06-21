@@ -57,24 +57,24 @@ public:
 };
 
 
-class Position
+class Target
 {
 public:
     double x;
     double y;
     
-    inline Position(double x, double y) : x(x), y(y) {}
+    inline Target(double x, double y) : x(x), y(y) {}
 };
 
 class Event
 {
 public:
     Launch launch;
-    Position position;
+    Target target;
     double time;
     
-    inline Event(Launch launch, Position position, double time=0) :
-        launch(launch), position(position), time(time) {}
+    inline Event(Launch launch, Target target, double time=0) :
+        launch(launch), target(target), time(time) {}
 };
 
 
