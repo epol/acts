@@ -40,11 +40,12 @@ private:
     double frictionA=1; //TODO
     bool validA = true;
     bool validC = true;
+    double latitude;
 
     void update_values();
     
 public:
-    Fitter(double latitude);
+    Fitter(double latitude): latitude(latitude);
     void add_event(Event event);
     
     double get_frictionA();
