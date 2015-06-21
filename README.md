@@ -18,6 +18,6 @@ Profeti 2015
   * physics
   * acts
 * interfaces
-* lanuch parameters calculator
+* launch parameters calculator
 * fitter
 
