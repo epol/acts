@@ -38,9 +38,7 @@ class Fitter
 private:
     double frictionC=1; //TODO
     double frictionA=1; //TODO
-    bool validA = true;
-    bool validC = true;
-    double latitude;
+    bool validFriction = true;
 
     void update_values();
     
