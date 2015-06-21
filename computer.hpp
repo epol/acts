@@ -34,8 +34,11 @@
 #include "simulator.hpp"
 #include "fitter.hpp"
 
-class SimpleSimulator : Simulator
+class SimpleSimulator : public Simulator
 {
+public:
+    using Simulator::Simulator;  // inherit constructors
+    
 protected:
     virtual Vec3D calculate_friction(Vec3D, Vec3D);
     
