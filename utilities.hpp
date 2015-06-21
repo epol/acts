@@ -26,6 +26,8 @@
  * SOFTWARE.
  */
 
+#ifndef _UTILITIES_HPP
+#define _UTILITIES_HPP
 
 class Vec3D
 {
@@ -71,3 +73,6 @@ public:
     inline Event(Launch launch, Position position, double time=0) :
         launch(launch), position(position), time(time) {}
 };
+
+
+#endif  // _UTILITIES_HPP
