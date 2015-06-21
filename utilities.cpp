@@ -26,8 +26,8 @@
  * SOFTWARE.
  */
 
+#include <iostream>
 #include "utilities.hpp"
-
 
 Vec3D operator* (const double lambda, const Vec3D vec)
 {
@@ -58,3 +58,7 @@ Vec3D operator^ (const Vec3D a, const Vec3D b)
                 );
 }
 
+std::ostream& operator<< (std::ostream& ostr, const Vec3D a)
+{
+    return ostr << "(" << a.x << ", " << a.y << ", " << a.z << ")" << std::endl;
+}
