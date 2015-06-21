@@ -57,9 +57,8 @@ protected:
 
 public:
     inline Simulator(double dtime, double frictionC, double frictionA): dtime(dtime), frictionC(frictionC), frictionA(frictionA) {}
-    inline Simulator(double dtime, double frictionC, double frictionA, double latitude)
+    inline Simulator(double dtime, double frictionC, double frictionA, double latitude) : Simulator(dtime, frictionC, frictionA)
     {
-        Simulator(dtime, frictionC, frictionA);
         this->set_latitude(latitude);
     }
     
