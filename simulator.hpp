@@ -46,8 +46,8 @@ protected:
     const double modOmega=1./24/60/60;
     Vec3D omega=Vec3D(0,0,modOmega);
     
-    virtual Vec3D calculate_friction(double, Vec3D)
-    // Calculate the acceleration due to friction at a given altitude and velocity
+    virtual Vec3D calculate_friction(Vec3D, Vec3D)
+    // Calculate the acceleration due to friction at a given position and velocity
     {
         return Vec3D(0, 0, 0);
     }
