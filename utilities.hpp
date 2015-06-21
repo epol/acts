@@ -35,6 +35,7 @@ public:
     double z;
     
     inline Vec3D(double x, double y, double z) : x(x), y(y), z(z) {}
+    inline Vec3D() : x(0), y(0), z(0) {}
     // TODO: operators
     friend Vec3D operator* (const double lambda, const Vec3D vec);
 };
