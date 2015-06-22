@@ -87,10 +87,17 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     {
         throw ComputerException(ComputerException::LOWPOWER);
     }
-    //gsl_vector_set(l0,0,atan( gd / ( speed*speed + hypot(speed,-gd) ) ) ); // FIXME: maybe not correct
+
     gsl_vector_set(l0,0,.5*asin(gd/(speed*speed)));
-    
-    gsl_vector_set(l0,1,atan(target.y/target.x)); //FIXME: if target.x < 0 change sign
+    double phimod = atan(target.y/target.x); // phi restricted to [-pi/2,pi/2]
+    if (target.x > 0)
+    {
+        gsl_vector_set(l0,1,phimod);
+    }
+    else
+    {
+        gsl_vector_set(l0,1,phimod + M_PI);
+    }
     
     // Initialize a solver
     const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; // https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
@@ -134,6 +141,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     // Get the found root
     gsl_vector * root = gsl_multiroot_fsolver_root(s);
     Launch l(gsl_vector_get(root,0),gsl_vector_get(root,1),speed);
+    
     // Garbage collection
     gsl_multiroot_fsolver_free (s);
     
