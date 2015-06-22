@@ -28,6 +28,7 @@
 #define _UTILITIES_HPP
 
 #include <iostream>
+#include <cmath>
 
 class Vec3D
 {
@@ -47,6 +48,11 @@ public:
     friend std::ostream& operator<< (std::ostream& ostr, const Vec3D a);
 };
 
+inline double mod (const double n, const double p)
+{
+    return n - p*(floor(n/p));
+}
+
 class Launch
 {
 public:
@@ -55,7 +61,7 @@ public:
     double speed;
     
     inline Launch(double theta, double phi, double speed) : 
-        theta(theta), phi(phi), speed(speed) {}
+        theta(theta), phi(mod(phi,2*M_PI)), speed(speed) { }
 };
 
 
