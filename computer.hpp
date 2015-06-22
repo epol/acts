@@ -34,11 +34,11 @@
 
 class SimpleSimulator : public Simulator
 {
-public:
-    using Simulator::Simulator;  // inherit constructors
-    
 protected:
     virtual Vec3D calculate_friction(Vec3D, Vec3D);
+
+public:
+    using Simulator::Simulator;  // inherit constructors
     
 };
 
@@ -48,6 +48,7 @@ class Computer
 private:
     double latitude;
     Fitter fitter;
+
 public:
     Computer(double latitude) : latitude(latitude), fitter(latitude) {}
     
