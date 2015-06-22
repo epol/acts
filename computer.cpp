@@ -28,9 +28,12 @@
 #include <cstdlib>
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
+#include <iostream> // FIXME: we are not using it for debug
 
 #include "computer.hpp"
 #include "utilities.hpp"
+
+using namespace std;
 
 Vec3D SimpleSimulator::calculate_friction(Vec3D position, Vec3D velocity)
     // Calculate the acceleration due to friction at a given position and velocity
@@ -80,8 +83,16 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     // Initial point for zerofinder
     gsl_vector * l0 = gsl_vector_alloc(2);
     // FIXME: calculate it with the 2D nonfrictional equations
-    gsl_vector_set(l0,0,2);
-    gsl_vector_set(l0,1,2);
+    gsl_vector_set(l0,0,atan(target.x/target.y));
+    
+    double gd = 9.81 * hypot(target.x,target.y);
+    if (speed < gd )
+    {
+        // TODO: exception
+        cout << "Not enough power\n";
+        exit(1);
+    }
+    gsl_vector_set(l0,1,atan( gd / ( speed*speed + hypot(speed,-gd) ) ) ); // FIXME: maybe not correct
     
     // Initialize a solver
     const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; //https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
@@ -89,6 +100,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     if (s == NULL)
     {
         //TODO: raise Exception
+        cout << "Not enough memory to initialize solver\n";
         exit(1);
     }
     // construct the equation
@@ -105,18 +117,20 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     
     // Begin iteration
     int iteration_count = 0;
-    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),1e-100)==GSL_CONTINUE) )
+    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),1e-3)==GSL_CONTINUE) )
     {
         int status = gsl_multiroot_fsolver_iterate(s);
         if (status)
         {
             //TODO: raise Exception
+            cout << "Error at the " << iteration_count << "th iteration\n";
+            cout << gsl_strerror(status) << endl;
             exit(1);
         }
         ++iteration_count;
     }
     
-    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),1e-100)!=GSL_SUCCESS)
+    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),1e-3)!=GSL_SUCCESS)
     {
         // We have not reached a zero
         // TODO
