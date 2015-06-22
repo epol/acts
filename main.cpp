@@ -35,8 +35,9 @@ using namespace std;
 int main(int, char** argv)
 {
     Computer c(45);
-    SimpleSimulator s(1, 1, 1, 45);
-    Event e = s.simulate(c.calculate_launch_params(Target(atoi(argv[1]), atoi(argv[2])),1e5));
+    SimpleSimulator s(5e-2, 0, 0, 45);
+    Launch l = c.calculate_launch_params(Target(atof(argv[1]), atof(argv[2])),1e3);
+    Event e = s.simulate(l);
     cout << "(" << e.target.x << "," << e.target.y << ") " << e.time << endl;
     
     return 0;

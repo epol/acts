@@ -50,7 +50,7 @@ class Computer
 private:
     double latitude;
     Fitter fitter;
-    const double dtime = 1;
+    const double dtime = 5e-2;
 public:
     Computer(double latitude) : latitude(latitude), fitter(latitude) {}
     

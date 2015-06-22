@@ -70,7 +70,6 @@ int equation (const gsl_vector * x, void * param, gsl_vector * f)
     Target target = eq_param -> target;
     
     Event e = s->simulate(Launch(theta,phi,speed));
-    
     gsl_vector_set(f,0,e.target.x - target.x);
     gsl_vector_set(f,1,e.target.y - target.y);
     
@@ -83,16 +82,18 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     // Initial point for zerofinder
     gsl_vector * l0 = gsl_vector_alloc(2);
     // FIXME: calculate it with the 2D nonfrictional equations
-    gsl_vector_set(l0,0,atan(target.x/target.y));
-    
-    double gd = 9.81 * hypot(target.x,target.y);
-    if (speed < gd )
+    double d = hypot(target.x,target.y);
+    double gd = 9.81 * d;
+    if (speed*speed < gd )
     {
         // TODO: exception
         cout << "Not enough power\n";
         exit(1);
     }
-    gsl_vector_set(l0,1,atan( gd / ( speed*speed + hypot(speed,-gd) ) ) ); // FIXME: maybe not correct
+    //gsl_vector_set(l0,0,atan( gd / ( speed*speed + hypot(speed,-gd) ) ) ); // FIXME: maybe not correct
+    gsl_vector_set(l0,0,.5*asin(gd/(speed*speed)));
+    
+    gsl_vector_set(l0,1,atan(target.y/target.x));
     
     // Initialize a solver
     const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; //https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
@@ -114,23 +115,28 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     gsl_multiroot_fsolver_set(s,&F,l0);   // the value of x0 (the initial point) is copied
     // Garbage collection
     gsl_vector_free(l0);
-    
+    gsl_vector * root2; //DEBUG
+    gsl_vector * fvalue; //DEBUG
     // Begin iteration
     int iteration_count = 0;
-    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),1e-3)==GSL_CONTINUE) )
+    double eps = 5e-3*d;
+    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)==GSL_CONTINUE) )
     {
         int status = gsl_multiroot_fsolver_iterate(s);
+        root2 = gsl_multiroot_fsolver_root(s); //DEBUG
+        fvalue = gsl_multiroot_fsolver_f(s); //DEBUG
         if (status)
         {
             //TODO: raise Exception
             cout << "Error at the " << iteration_count << "th iteration\n";
             cout << gsl_strerror(status) << endl;
-            exit(1);
+            //exit(1);
+            break;
         }
         ++iteration_count;
     }
     
-    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),1e-3)!=GSL_SUCCESS)
+    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)!=GSL_SUCCESS)
     {
         // We have not reached a zero
         // TODO
@@ -138,11 +144,11 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     
     // Get the found root
     gsl_vector * root = gsl_multiroot_fsolver_root(s);
-    
+    Launch l(gsl_vector_get(root,0),gsl_vector_get(root,1),speed);
     // Garbage collection
     gsl_multiroot_fsolver_free (s);
     
-    return Launch(gsl_vector_get(root,0),gsl_vector_get(root,1),speed);
+    return l;
 }
 
 
