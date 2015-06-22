@@ -38,7 +38,7 @@ int main(int, char** argv)
     SimpleSimulator s(5e-2, 0, 0, 45);
     Launch l = c.calculate_launch_params(Target(atof(argv[1]), atof(argv[2])),1e3);
     Event e = s.simulate(l);
-    cout << "(" << e.target.x << "," << e.target.y << ") " << e.time << endl;
+    cout << e << endl;
     
     return 0;
 }

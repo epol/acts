@@ -60,3 +60,19 @@ std::ostream& operator<< (std::ostream& ostr, const Vec3D a)
 {
     return ostr << "(" << a.x << ", " << a.y << ", " << a.z << ")" << std::endl;
 }
+
+
+std::ostream& operator<< (std::ostream& ostr, const Launch l)
+{
+    return ostr << "Launch(theta=" << l.theta << ", phi=" << l.phi << ", speed=" << l.speed << ")";
+}
+
+std::ostream& operator<< (std::ostream& ostr, const Target t)
+{
+    return ostr << "Target(" << t.x << ", " << t.y << ")";
+}
+
+std::ostream& operator<< (std::ostream& ostr, const Event e)
+{
+    return ostr << "Event(" << e.launch << ", " << e.target << ", time=" << e.time << ")";
+}
