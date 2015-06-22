@@ -34,8 +34,8 @@
 class Fitter
 {
 private:
-    double frictionC=1; //TODO
-    double frictionA=1; //TODO
+    double frictionC=0; //TODO
+    double frictionA=0; //TODO
     bool validFriction = true;
     
     double latitude;
