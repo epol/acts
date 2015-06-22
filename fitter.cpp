@@ -28,6 +28,12 @@
 
 #include "fitter.hpp"
 
+void Fitter::update_values()
+{
+    // TODO
+}
+
+
 double Fitter::get_frictionA()
 {
     if (! (this->validFriction))
