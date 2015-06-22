@@ -25,13 +25,16 @@
 
 CXX=g++ -std=gnu++11
 CPPFLAGS=-g -Og -Wall -Wextra -pedantic -lgsl -lgslcblas -lm
-OBJS=main.o computer.o fitter.o simulator.o utilities.o
+OBJS=main.o worldSim.o computer.o fitter.o simulator.o utilities.o
 
 build: $(OBJS)
 	$(CXX) $(OBJS) $(CPPFLAGS) -o main
 
 main.o: main.cpp utilities.hpp simulator.hpp computer.hpp
 	$(CXX) -c main.cpp -o main.o $(CPPFLAGS)
+
+worldSim.o: worldSim.cpp utilities.hpp simulator.hpp worldSim.hpp
+	$(CXX) -c worldSim.cpp -o worldSim.o $(CPPFLAGS)
 
 computer.o: computer.cpp utilities.hpp simulator.hpp fitter.hpp computer.hpp
 	$(CXX) -c computer.cpp -o computer.o $(CPPFLAGS)

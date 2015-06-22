@@ -25,20 +25,29 @@
  */
 
 #include <iostream>
+#include <random>
 
 #include "utilities.hpp"
 #include "simulator.hpp"
 #include "computer.hpp"
+#include "worldSim.hpp"
 
 using namespace std;
 
 int main(int, char** argv)
 {
     Computer c(45);
-    SimpleSimulator s(5e-2, 0, 0, 45);
+    SimpleSimulator s(0.05, 0, 0, 45);
     Launch l = c.calculate_launch_params(Target(atof(argv[1]), atof(argv[2])),1e3);
     Event e = s.simulate(l);
     cout << e << endl;
+    
+    random_device rd;
+    WorldSimulator w(0.05, 0, 0, 45, rd());
+    w.set_friction_sigmas(0.01, 0.01);
+    e = w.simulate(l);
+    cout << e << endl;
+
     
     return 0;
 }
