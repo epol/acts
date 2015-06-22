@@ -81,28 +81,23 @@ Launch Computer::calculate_launch_params(Target target, double speed)
 {
     // Initial point for zerofinder
     gsl_vector * l0 = gsl_vector_alloc(2);
-    // FIXME: calculate it with the 2D nonfrictional equations
     double d = hypot(target.x,target.y);
     double gd = 9.81 * d;
     if (speed*speed < gd )
     {
-        // TODO: exception
-        cout << "Not enough power\n";
-        exit(1);
+        throw ComputerException(ComputerException::LOWPOWER);
     }
     //gsl_vector_set(l0,0,atan( gd / ( speed*speed + hypot(speed,-gd) ) ) ); // FIXME: maybe not correct
     gsl_vector_set(l0,0,.5*asin(gd/(speed*speed)));
     
-    gsl_vector_set(l0,1,atan(target.y/target.x));
+    gsl_vector_set(l0,1,atan(target.y/target.x)); //FIXME: if target.x < 0 change sign
     
     // Initialize a solver
-    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; //https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
+    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; // https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
     gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc (T, 2);
     if (s == NULL)
     {
-        //TODO: raise Exception
-        cout << "Not enough memory to initialize solver\n";
-        exit(1);
+        throw ComputerException(ComputerException::SOLVERINIT);
     }
     // construct the equation
     gsl_multiroot_function F;
@@ -123,10 +118,8 @@ Launch Computer::calculate_launch_params(Target target, double speed)
         int status = gsl_multiroot_fsolver_iterate(s);
         if (status)
         {
-            //TODO: raise Exception
-            cout << "Error at the " << iteration_count << "th iteration\n";
-            cout << gsl_strerror(status) << endl;
-            //exit(1);
+            //TODO: should we do something different?
+            cout << "Warning: error at the " << iteration_count << "th iteration: " << gsl_strerror(status) << endl;
             break;
         }
         ++iteration_count;
@@ -134,8 +127,8 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     
     if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)!=GSL_SUCCESS)
     {
-        // We have not reached a zero
-        // TODO
+        //TODO: should we do something different?
+        cout << "Warning: we haven't reached a zero\n";
     }
     
     // Get the found root

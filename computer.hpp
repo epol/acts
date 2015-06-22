@@ -45,6 +45,32 @@ public:
 };
 
 
+class ComputerException
+{
+public:
+    enum errcode {LOWPOWER,SOLVERINIT};
+private:
+    enum errcode type;
+public:
+    ComputerException( enum errcode e ) : type(e) {};
+    const char *ShowReason() const
+    {
+        switch (this->type)
+        {
+        case LOWPOWER:
+            return "Launch power is not sufficient";
+            break;
+        case SOLVERINIT:
+            return "Error initializing the solver";
+            break;
+        default:
+            return "Unknown ComputerException error code";
+            break;
+        }
+    }
+};
+
+
 class Computer
 {
 private:
