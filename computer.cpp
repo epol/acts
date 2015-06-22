@@ -25,7 +25,12 @@
  */
  
 #include <cmath>
+#include <cstdlib>
+#include <gsl/gsl_multiroots.h>
+#include <gsl/gsl_vector.h>
+
 #include "computer.hpp"
+#include "utilities.hpp"
 
 Vec3D SimpleSimulator::calculate_friction(Vec3D position, Vec3D velocity)
     // Calculate the acceleration due to friction at a given position and velocity
@@ -33,3 +38,99 @@ Vec3D SimpleSimulator::calculate_friction(Vec3D position, Vec3D velocity)
     double friction_coeff = frictionC * exp(-frictionA * position.z);
     return -friction_coeff * velocity;
 }
+
+
+
+
+
+
+
+// BEGIN: calculate_launch_params code
+
+class EquationParam
+// To be used as the equation parameters
+{
+public:
+    SimpleSimulator * s;
+    double speed;
+    Target target;
+    EquationParam(SimpleSimulator * s, double speed, Target target) : s(s), speed(speed), target(target) {}
+};
+
+int equation (const gsl_vector * x, void * param, gsl_vector * f)
+{
+    const double theta = gsl_vector_get(x,0);
+    const double phi = gsl_vector_get(x,1);
+    EquationParam * eq_param = (EquationParam *) param;
+    SimpleSimulator * s = eq_param -> s;
+    double speed = eq_param -> speed;
+    Target target = eq_param -> target;
+    
+    Event e = s->simulate(Launch(theta,phi,speed));
+    
+    gsl_vector_set(f,0,e.target.x - target.x);
+    gsl_vector_set(f,1,e.target.y - target.y);
+    
+    return GSL_SUCCESS;
+}
+
+
+Launch Computer::calculate_launch_params(Target target, double speed)
+{
+    // Initial point for zerofinder
+    gsl_vector * l0 = gsl_vector_alloc(2);
+    // FIXME: calculate it with the 2D nonfrictional equations
+    gsl_vector_set(l0,0,2);
+    gsl_vector_set(l0,1,2);
+    
+    // Initialize a solver
+    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; //https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
+    gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc (T, 2);
+    if (s == NULL)
+    {
+        //TODO: raise Exception
+        exit(1);
+    }
+    // construct the equation
+    gsl_multiroot_function F;
+    F.f = &equation;
+    F.n = 2;
+    SimpleSimulator sim = SimpleSimulator(this->dtime, this->fitter.get_frictionC(), this->fitter.get_frictionA(), this->latitude);
+    EquationParam param = EquationParam( &sim, speed, target);
+    F.params = & param;
+    // Set the solver
+    gsl_multiroot_fsolver_set(s,&F,l0);   // the value of x0 (the initial point) is copied
+    // Garbage collection
+    gsl_vector_free(l0);
+    
+    // Begin iteration
+    int iteration_count = 0;
+    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),1e-100)==GSL_CONTINUE) )
+    {
+        int status = gsl_multiroot_fsolver_iterate(s);
+        if (status)
+        {
+            //TODO: raise Exception
+            exit(1);
+        }
+        ++iteration_count;
+    }
+    
+    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),1e-100)!=GSL_SUCCESS)
+    {
+        // We have not reached a zero
+        // TODO
+    }
+    
+    // Get the found root
+    gsl_vector * root = gsl_multiroot_fsolver_root(s);
+    
+    // Garbage collection
+    gsl_multiroot_fsolver_free (s);
+    
+    return Launch(gsl_vector_get(root,0),gsl_vector_get(root,1),speed);
+}
+
+
+
+// END: calculate_launch_params code

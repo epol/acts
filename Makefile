@@ -24,8 +24,8 @@
 
 
 CXX=g++ -std=gnu++11
-CPPFLAGS=-g -Og -Wall -Wextra -pedantic
-OBJS=main.o computer.o fitter.o simulator.o utilities.o
+CPPFLAGS=-g -Og -Wall -Wextra -pedantic -lgsl -lgslcblas -lm
+OBJS=main.o computer.o fitter.o simulator.o utilities.o 
 
 build: $(OBJS)
 	$(CXX) $(OBJS) $(CPPFLAGS) -o main
