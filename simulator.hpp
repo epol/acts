@@ -44,6 +44,13 @@ protected:
     const double modOmega=1./24/60/60;
     Vec3D omega=Vec3D(0,0,modOmega);
     
+    inline Simulator(double dtime, double frictionC, double frictionA): dtime(dtime), frictionC(frictionC), frictionA(frictionA) {}
+    
+    inline Simulator(double dtime, double frictionC, double frictionA, double latitude) : Simulator(dtime, frictionC, frictionA)
+    {
+        this->set_latitude(latitude);
+    }
+    
     virtual Vec3D calculate_friction(Vec3D, Vec3D)
     // Calculate the acceleration due to friction at a given position and velocity
     {
@@ -54,12 +61,6 @@ protected:
     // Calculate all the non-friction accelerations (gravity & non-inertial)
 
 public:
-    inline Simulator(double dtime, double frictionC, double frictionA): dtime(dtime), frictionC(frictionC), frictionA(frictionA) {}
-    inline Simulator(double dtime, double frictionC, double frictionA, double latitude) : Simulator(dtime, frictionC, frictionA)
-    {
-        this->set_latitude(latitude);
-    }
-    
     inline void set_latitude(double latitude)
     // Wants latitude in degrees, stores it in radians
     {

@@ -36,9 +36,11 @@ class SimpleSimulator : public Simulator
 {
 protected:
     virtual Vec3D calculate_friction(Vec3D, Vec3D);
-
-public:
     using Simulator::Simulator;  // inherit constructors
+    
+public:
+    inline SimpleSimulator(double dtime, double frictionC, double frictionA, double latitude):
+        Simulator(dtime, frictionC, frictionA, latitude) {}
     
 };
 
