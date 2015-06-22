@@ -32,11 +32,21 @@
 
 class WorldSimulator : public Simulator
 {
+private:
+    double frictionCsigma;
+    double frictionAsigma;
+
+protected:
+    virtual Vec3D calculate_friction(Vec3D, Vec3D);
+
 public:
     using Simulator::Simulator;  // inherit constructors
     
-protected:
-    virtual Vec3D calculate_friction(Vec3D, Vec3D);
+    inline void set_friction_sigmas(double frictionCsigma, double frictionAsigma)
+    {
+        this->frictionCsigma = frictionCsigma;
+        this->frictionAsigma = frictionAsigma;
+    }
     
 };
 
