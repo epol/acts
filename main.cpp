@@ -37,7 +37,7 @@ using namespace std;
 int main(int, char** argv)
 {
     SimpleSimulator s(.1, atoi(argv[1]), 0, 45);
-    Event e = s.simulate(Launch(0, 1, 100));
+    Event e = s.simulate(Launch(1, 1, 100));
     cout << "(" << e.target.x << "," << e.target.y << ") " << e.time << endl;
     
     return 0;
