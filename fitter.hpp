@@ -27,9 +27,33 @@
 #ifndef _FITTER_HPP
 #define _FITTER_HPP
 
-
 #include "utilities.hpp"
 #include "simulator.hpp"
+
+class EventMemory
+{
+private:
+    int maxsize;
+    Event * memory;
+    int used = 0;
+    int first = 0;
+public:
+    EventMemory(int maxsize) : maxsize(maxsize), first(maxsize)
+    {
+        memory = new Event[maxsize];
+    }
+    ~EventMemory()
+    {
+        delete memory;
+    }
+    
+    void add(Event e);
+    Event * get();
+    inline int size()
+    {
+        return this->used;
+    }
+};
 
 class Fitter
 {

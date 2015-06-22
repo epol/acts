@@ -62,6 +62,7 @@ public:
     
     inline Launch(double theta, double phi, double speed) : 
         theta(theta), phi(mod(phi,2*M_PI)), speed(speed) { }
+    inline Launch() {}
     friend std::ostream& operator<< (std::ostream& ostr, const Launch l);
 };
 
@@ -73,6 +74,7 @@ public:
     double y;
     
     inline Target(double x, double y) : x(x), y(y) {}
+    inline Target() {}
     friend std::ostream& operator<< (std::ostream& ostr, const Target t);
 };
 
@@ -85,6 +87,7 @@ public:
     
     inline Event(Launch launch, Target target, double time=0) :
         launch(launch), target(target), time(time) {}
+    inline Event() {}
     friend std::ostream& operator<< (std::ostream& ostr, const Event e);
 };
 

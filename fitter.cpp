@@ -55,3 +55,41 @@ void Fitter::add_event(Event event)
     this->validFriction = false;
     // TODO
 }
+
+
+void EventMemory::add(Event e)
+{
+    if (this->used < this->maxsize)
+    {
+        // The array is not full, yet
+        ++(this->used);
+    }
+    this->first = (this->first -1)%this->maxsize;
+    this->memory[this->first] = e;
+}
+
+Event * EventMemory::get()
+{
+    if (this->used < this->maxsize)
+    {
+        return this->memory + this->first;
+    }
+    
+    if (this->first == 0)
+    {
+        return this->memory;
+    }
+    else
+    {
+        // sorting the array to move first in position 0
+        Event * newmemory = new Event[this->maxsize];
+        for (int i = 0; i<this->maxsize ; ++i)
+        {
+            newmemory[i] = this->memory[(this->first + i)%maxsize];
+        }
+        delete this->memory;
+        this->memory = newmemory;
+        this->first = 0;
+        return this->memory;
+    }
+}
