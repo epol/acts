@@ -53,7 +53,7 @@ private:
 public:
     Computer(double latitude) : latitude(latitude), fitter(latitude) {}
     
-    Launch get_params(Target target);
+    Launch calculate_launch_params(Target target, double speed);
     void add_event(Event event)
     {
         fitter.add_event(event);
