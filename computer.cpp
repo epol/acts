@@ -115,16 +115,12 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     gsl_multiroot_fsolver_set(s,&F,l0);   // the value of x0 (the initial point) is copied
     // Garbage collection
     gsl_vector_free(l0);
-    gsl_vector * root2; //DEBUG
-    gsl_vector * fvalue; //DEBUG
     // Begin iteration
     int iteration_count = 0;
     double eps = 5e-3*d;
     while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)==GSL_CONTINUE) )
     {
         int status = gsl_multiroot_fsolver_iterate(s);
-        root2 = gsl_multiroot_fsolver_root(s); //DEBUG
-        fvalue = gsl_multiroot_fsolver_f(s); //DEBUG
         if (status)
         {
             //TODO: raise Exception
