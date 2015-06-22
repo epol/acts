@@ -27,7 +27,7 @@
 #ifndef _WORLD_HPP
 #define _WORLD_HPP
 
-
+#include <random>
 #include "simulator.hpp"
 
 class WorldSimulator : public Simulator
@@ -35,12 +35,21 @@ class WorldSimulator : public Simulator
 private:
     double frictionCsigma;
     double frictionAsigma;
-
+    
+    std::default_random_engine g;
+    
+    using Simulator::Simulator;  // inherit constructors
+    
 protected:
     virtual Vec3D calculate_friction(Vec3D, Vec3D);
 
 public:
-    using Simulator::Simulator;  // inherit constructors
+    
+    WorldSimulator(double dtime, double frictionC, double frictionA, double latitude, uint seed):
+        Simulator(dtime, frictionC, frictionA, latitude)
+    {
+        this->g = std::default_random_engine(seed);
+    }
     
     inline void set_friction_sigmas(double frictionCsigma, double frictionAsigma)
     {
