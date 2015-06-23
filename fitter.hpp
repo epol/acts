@@ -44,7 +44,7 @@ public:
     }
     ~EventMemory()
     {
-        delete memory;
+        delete[] memory;
     }
     
     void add(Event e);
