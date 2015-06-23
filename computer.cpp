@@ -183,103 +183,63 @@ void Computer::update_values()
 
 // BEGIN: calculate_launch_params code
 
-class EquationParam
-// To be used as the equation parameters
+class Polar
 {
 public:
-    SimpleSimulator* s;
-    double speed;
-    Target target;
+    double r;
+    double phi;
     
-    EquationParam(SimpleSimulator* s, double speed, Target target) : s(s), speed(speed), target(target) {}
+    Polar(double r, double phi) : r(r), phi(phi) {}
+    Polar() {}
 };
-
-int equation (const gsl_vector * x, void * param, gsl_vector * f)
-{
-    const double theta = gsl_vector_get(x,0);
-    const double phi = gsl_vector_get(x,1);
-    EquationParam * eq_param = (EquationParam *) param;
-    SimpleSimulator * s = eq_param -> s;
-    double speed = eq_param -> speed;
-    Target target = eq_param -> target;
-    
-    Event e = s->simulate(Launch(theta,phi,speed));
-    gsl_vector_set(f,0,e.target.x - target.x);
-    gsl_vector_set(f,1,e.target.y - target.y);
-    
-    return GSL_SUCCESS;
-}
-
 
 Launch Computer::calculate_launch_params(Target target, double speed)
 {
     // Initial point for zerofinder
-    gsl_vector * l0 = gsl_vector_alloc(2);
     double d = hypot(target.x,target.y);
-    double gd = simpleSim.get_gravity() * d;
+    double gd = this->simpleSim.get_gravity() * d;
     if (speed*speed < gd )
     {
         throw ComputerException(ComputerException::LOWPOWER);
     }
 
-    gsl_vector_set(l0,0,.5*asin(gd/(speed*speed))); // set theta
-    double phimod = atan(target.y/target.x); // phi restricted to [-pi/2,pi/2]
-    if (target.x > 0)
+    double phi = atan(target.y/target.x); // phi restricted to [-pi/2,pi/2]
+    if (target.x < 0)
     {
-        gsl_vector_set(l0,1,phimod);
+        // Extending to [-pi/2,3/2pi]
+        phi += M_PI;
     }
-    else
-    {
-        gsl_vector_set(l0,1,phimod + M_PI);
-    }
-    
-    // Initialize a solver
-    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; // https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
-    gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc (T, 2);
-    if (s == nullptr)
-    {
-        throw ComputerException(ComputerException::SOLVERINIT);
-    }
-    // construct the equation
-    gsl_multiroot_function F;
-    F.f = &equation;
-    F.n = 2;
+
+    Launch params(.5*asin(gd/(speed*speed)), phi, speed);
+    Polar polarTarget = Polar(d,phi);
+    Target currentTarget;
+    double error = 0; // FIXME: set it to Inf
+    double eps = 1e-5;
+    int counter = 0;
     this->simpleSim.set_friction(this->frictionC, this->frictionA);
-    EquationParam param = EquationParam( &simpleSim, speed, target);
-    F.params = & param;
-    // Set the solver
-    gsl_multiroot_fsolver_set(s,&F,l0);   // the value of x0 (the initial point) is copied
-    // Garbage collection
-    gsl_vector_free(l0);
-    // Begin iteration
-    int iteration_count = 0;
-    const double eps = 5e-3*d;
-    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)==GSL_CONTINUE) )
+    
+    double gOnSpeed2 = this->simpleSim.get_gravity()/(speed*speed); // g / (speed *speed) to be used in \partial r / \partial theta
+    do
     {
-        int status = gsl_multiroot_fsolver_iterate(s);
-        if (status)
+        currentTarget = this->simpleSim.simulate(params).target;
+        Polar t = Polar(hypot(currentTarget.x,currentTarget.y),atan(currentTarget.y/currentTarget.x));
+        if (currentTarget.x < 0)
         {
-            //TODO: should we do something different?
-            cout << "Warning: error at the " << iteration_count << "th iteration: " << gsl_strerror(status) << endl;
-            break;
+            t.phi += M_PI;
         }
-        ++iteration_count;
+        params.phi -= (t.phi - polarTarget.phi); // The derivative is 1
+        params.theta -= (t.r - polarTarget.r) * gOnSpeed2 /2 / cos(2*params.theta) ;
+        error = hypot(target.x - currentTarget.x,target.y - currentTarget.y);
+        ++counter;
     }
+    while (error > d*eps && counter < 1000);
     
-    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)!=GSL_SUCCESS)
+    if (error > d*eps)
     {
-        //TODO: should we do something different?
-        cout << "Warning: we haven't reached a zero\n";
+        cout << "Warning: nonzero reached" << endl;
     }
     
-    // Get the found root
-    gsl_vector * root = gsl_multiroot_fsolver_root(s);
-    Launch l(gsl_vector_get(root,0),gsl_vector_get(root,1),speed);
-    
-    // Garbage collection
-    gsl_multiroot_fsolver_free (s);
-    
-    return l;
+    return params;
 }
 
 

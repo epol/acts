@@ -138,7 +138,7 @@ public:
 class ComputerException
 {
 public:
-    enum errcode {LOWPOWER,SOLVERINIT};
+    enum errcode {LOWPOWER};
 private:
     enum errcode type;
 public:
@@ -149,9 +149,6 @@ public:
         {
         case LOWPOWER:
             return "Launch power is not sufficient";
-            break;
-        case SOLVERINIT:
-            return "Error initializing the solver";
             break;
         default:
             return "Unknown ComputerException error code";
