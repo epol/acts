@@ -29,6 +29,7 @@
 void Fitter::update_values()
 {
     // TODO
+    this->validFriction = true;
 }
 
 
@@ -49,13 +50,6 @@ double Fitter::get_frictionC()
     }
     return this->frictionC;
 }
-
-void Fitter::add_event(Event event)
-{
-    this->validFriction = false;
-    // TODO
-}
-
 
 void EventMemory::add(Event e)
 {

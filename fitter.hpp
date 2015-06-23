@@ -63,12 +63,17 @@ private:
     bool validFriction = true;
     
     double latitude;
+    EventMemory memory; // TODO: set a sound memory size
 
     void update_values();
     
 public:
-    Fitter(double latitude): latitude(latitude) {}
-    void add_event(Event event);
+    Fitter(double latitude): latitude(latitude), memory(10) {}
+    inline void add_event(Event event)
+    {
+        this->validFriction = false;
+        this->memory.add(event);
+    }
     
     double get_frictionA();
     double get_frictionC();
