@@ -34,7 +34,7 @@
 
 class SimpleSimulator : public Simulator
 {
-protected:
+private:
     virtual Vec3D calculate_friction(Vec3D, Vec3D);
     using Simulator::Simulator;  // inherit constructors
     
@@ -42,6 +42,22 @@ public:
     inline SimpleSimulator(double dtime, double frictionC, double frictionA, double latitude):
         Simulator(dtime, frictionC, frictionA, latitude) {}
     
+};
+
+class Computer
+{
+private:
+    SimpleSimulator simpleSim;
+    Fitter fitter;
+    
+public:
+    Computer(double latitude) : simpleSim(0.05, 0, 0, latitude), fitter(latitude) {}
+    
+    Launch calculate_launch_params(Target target, double speed);
+    void add_event(Event event)
+    {
+        fitter.add_event(event);
+    }
 };
 
 
@@ -69,32 +85,6 @@ public:
         }
     }
 };
-
-
-class Computer
-{
-private:
-    double latitude;
-    Fitter fitter;
-    const double dtime = 5e-2;
-public:
-    Computer(double latitude) : latitude(latitude), fitter(latitude) {}
-    
-    Launch calculate_launch_params(Target target, double speed);
-    void add_event(Event event)
-    {
-        fitter.add_event(event);
-    }
-};
-
-
-
-
-
-
-
-
-
 
 
 #endif // _COMPUTER_HPP

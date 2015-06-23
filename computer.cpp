@@ -46,18 +46,17 @@ Vec3D SimpleSimulator::calculate_friction(Vec3D position, Vec3D velocity)
 
 
 
-
-
 // BEGIN: calculate_launch_params code
 
 class EquationParam
 // To be used as the equation parameters
 {
 public:
-    SimpleSimulator * s;
+    SimpleSimulator* s;
     double speed;
     Target target;
-    EquationParam(SimpleSimulator * s, double speed, Target target) : s(s), speed(speed), target(target) {}
+    
+    EquationParam(SimpleSimulator* s, double speed, Target target) : s(s), speed(speed), target(target) {}
 };
 
 int equation (const gsl_vector * x, void * param, gsl_vector * f)
@@ -82,13 +81,13 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     // Initial point for zerofinder
     gsl_vector * l0 = gsl_vector_alloc(2);
     double d = hypot(target.x,target.y);
-    double gd = 9.81 * d;
+    double gd = simpleSim.get_gravity() * d;
     if (speed*speed < gd )
     {
         throw ComputerException(ComputerException::LOWPOWER);
     }
 
-    gsl_vector_set(l0,0,.5*asin(gd/(speed*speed)));
+    gsl_vector_set(l0,0,.5*asin(gd/(speed*speed))); // set theta
     double phimod = atan(target.y/target.x); // phi restricted to [-pi/2,pi/2]
     if (target.x > 0)
     {
@@ -110,8 +109,8 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     gsl_multiroot_function F;
     F.f = &equation;
     F.n = 2;
-    SimpleSimulator sim = SimpleSimulator(this->dtime, this->fitter.get_frictionC(), this->fitter.get_frictionA(), this->latitude);
-    EquationParam param = EquationParam( &sim, speed, target);
+    this->simpleSim.set_friction(this->fitter.get_frictionC(), this->fitter.get_frictionA());
+    EquationParam param = EquationParam( &simpleSim, speed, target);
     F.params = & param;
     // Set the solver
     gsl_multiroot_fsolver_set(s,&F,l0);   // the value of x0 (the initial point) is copied
@@ -119,7 +118,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     gsl_vector_free(l0);
     // Begin iteration
     int iteration_count = 0;
-    double eps = 5e-3*d;
+    const double eps = 5e-3*d;
     while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)==GSL_CONTINUE) )
     {
         int status = gsl_multiroot_fsolver_iterate(s);

@@ -74,6 +74,11 @@ public:
         this->frictionA = frictionA;
     }
     
+    inline double get_gravity()
+    {
+        return this->gravity;
+    }
+    
     Event simulate(Launch launch);
 };
 
