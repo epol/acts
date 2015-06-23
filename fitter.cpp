@@ -25,31 +25,10 @@
  */
 
 #include "fitter.hpp"
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_multimin.h>
 
-void Fitter::update_values()
-{
-    // TODO
-    this->validFriction = true;
-}
-
-
-double Fitter::get_frictionA()
-{
-    if (! (this->validFriction))
-    {
-        this->update_values();
-    }
-    return this->frictionA;
-}
-
-double Fitter::get_frictionC()
-{
-    if (! (this->validFriction))
-    {
-        this->update_values();
-    }
-    return this->frictionC;
-}
+using namespace std;
 
 void EventMemory::add(Event e)
 {
@@ -86,4 +65,98 @@ Event * EventMemory::get()
         this->first = 0;
         return this->memory;
     }
+}
+
+double rolling_chi2 (const gsl_vector *v, void *params)
+// this signature is required by gsl
+{
+    double x, y;
+    EventMemory* m = (EventMemory*)params;
+    
+    x = gsl_vector_get(v, 0);
+    y = gsl_vector_get(v, 1);
+ 
+    return x*x+y*y;
+}
+
+int Minimizer::minimize(EventMemory* mem)
+{
+    const gsl_multimin_fminimizer_type* T = gsl_multimin_fminimizer_nmsimplex2;
+    gsl_vector *ss, *x;
+    gsl_multimin_function minex_func;
+
+    int iter = 0;
+    double size;
+    status=0;
+
+    /* Starting point */
+    x = gsl_vector_alloc(npars);
+    for (int i=0; i<npars; ++i) {
+        gsl_vector_set (x, i, startingPoint[i]);
+    }
+
+    /* Set initial step sizes to initial step */
+    ss = gsl_vector_alloc (npars);
+    gsl_vector_set_all (ss, step);
+
+    /* Initialize method and iterate */
+    minex_func.n = npars;
+    minex_func.f = rolling_chi2;  // here we use our function
+    minex_func.params = (void*)mem;  // pass the event memory as parameter
+
+    gsl_multimin_fminimizer* s = gsl_multimin_fminimizer_alloc (T, nvars);
+    gsl_multimin_fminimizer_set(s, &minex_func, x, ss);
+
+    do {
+        iter++;
+        status = gsl_multimin_fminimizer_iterate(s);
+        
+        if (status) break;
+
+        size = gsl_multimin_fminimizer_size (s);
+        status = gsl_multimin_test_size (size, accuracy);
+    }
+    while (status == GSL_CONTINUE && iter < maxiter);
+    
+    for (int i=0; i<npars; ++i) {
+        finalPoint[i] = gsl_vector_get(s->x, i);
+    }
+    minValue = s->fval;
+    
+    gsl_vector_free(x);
+    gsl_vector_free(ss);
+    gsl_multimin_fminimizer_free (s);
+    
+    return status;
+}
+
+void Fitter::update_values()
+{
+    minimizer.set_starting_point(frictionC, frictionA);
+    int status = minimizer.minimize(&memory);
+    if (status!=0) cout << "Fit failed with status:" << status << endl;
+    else cout << "Fit successful" << endl;
+    cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
+    
+    
+    this->validFriction = true;
+}
+
+
+double Fitter::get_frictionA()
+{
+    if (! (this->validFriction))
+    {
+        this->update_values();
+    }
+    return this->frictionA;
+}
+
+double Fitter::get_frictionC()
+{
+    if (! (this->validFriction))
+    {
+        this->update_values();
+    }
+    return this->frictionC;
 }

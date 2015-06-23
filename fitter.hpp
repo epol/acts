@@ -27,6 +27,7 @@
 #ifndef _FITTER_HPP
 #define _FITTER_HPP
 
+#include <gsl/gsl_vector.h>
 #include "utilities.hpp"
 #include "simulator.hpp"
 
@@ -55,6 +56,37 @@ public:
     }
 };
 
+double rolling_chi2 (const gsl_vector *v, void *params);
+
+class Minimizer
+{
+private:
+    static const int nvars = 2;
+    static const int npars = 2;
+    double startingPoint[npars] = {0};
+    
+    double accuracy = 1e-4;
+    double step = 1;
+    double maxiter = 100;
+    
+    int status = -1;
+
+public:
+    double finalPoint[npars];
+    double minValue;
+
+    Minimizer() {};
+    
+    void set_starting_point(double x0, double y0)
+    {
+        startingPoint[0] = x0;
+        startingPoint[1] = y0;
+    }
+
+    int minimize(EventMemory* mem);
+};
+
+
 class Fitter
 {
 private:
@@ -64,11 +96,18 @@ private:
     
     double latitude;
     EventMemory memory; // TODO: set a sound memory size
+    Minimizer minimizer;
 
     void update_values();
     
 public:
     Fitter(double latitude): latitude(latitude), memory(10) {}
+    Fitter(double frictionC, double frictionA, double latitude) : Fitter(latitude)
+    {
+        this->frictionC = frictionC;
+        this->frictionA = frictionA;
+    }
+    
     inline void add_event(Event event)
     {
         this->validFriction = false;
