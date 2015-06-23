@@ -101,7 +101,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     // Initialize a solver
     const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; // https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
     gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc (T, 2);
-    if (s == NULL)
+    if (s == nullptr)
     {
         throw ComputerException(ComputerException::SOLVERINIT);
     }
