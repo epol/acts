@@ -97,8 +97,6 @@ private:
     double latitude;
     EventMemory memory; // TODO: set a sound memory size
     Minimizer minimizer;
-
-    void update_values();
     
 public:
     Fitter(double latitude): latitude(latitude), memory(10) {}
@@ -113,6 +111,8 @@ public:
         this->validFriction = false;
         this->memory.add(event);
     }
+    
+    void update_values();
     
     double get_frictionA();
     double get_frictionC();
