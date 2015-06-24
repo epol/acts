@@ -34,8 +34,13 @@
 
 using namespace std;
 
-int main(int, char** argv)
+int main(int argc, char** argv)
 {
+    if (argc < 3) {
+        cout << "You need to provide 2 arguments (x,y) for targeting" << endl;
+        return 1;
+    }
+    
     Computer c(45);
     SimpleSimulator s(0.05, 0, 0, 45);
     Launch l = c.calculate_launch_params(Target(atof(argv[1]), atof(argv[2])),1e3);
@@ -47,7 +52,9 @@ int main(int, char** argv)
     w.set_friction_sigmas(0.01, 0.01);
     e = w.simulate(l);
     cout << e << endl;
-
+    
+    c.add_event(e);
+    c.update_values(e);
     
     return 0;
 }
