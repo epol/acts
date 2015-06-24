@@ -51,7 +51,9 @@ private:
     Fitter fitter;
     
 public:
-    Computer(double latitude) : simpleSim(0.05, 0, 0, latitude), fitter(latitude) {}
+    Computer(double latitude, double frictionC=0, double frictionA=0) :
+        simpleSim(0.05, frictionC, frictionA, latitude),
+        fitter(frictionC, frictionA, latitude) {}
     
     Launch calculate_launch_params(Target target, double speed);
     void add_event(Event event)

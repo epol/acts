@@ -90,8 +90,8 @@ public:
 class Fitter
 {
 private:
-    double frictionC=0; //TODO
-    double frictionA=0; //TODO
+    double frictionC = 0;
+    double frictionA = 0;
     bool validFriction = true;
     
     double latitude;
@@ -104,6 +104,7 @@ public:
     {
         this->frictionC = frictionC;
         this->frictionA = frictionA;
+        minimizer.set_starting_point(frictionC, frictionA);
     }
     
     inline void add_event(Event event)
