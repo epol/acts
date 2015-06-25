@@ -40,11 +40,11 @@ private:
 public:
     EventMemory(int maxsize) : maxsize(maxsize), first(maxsize)
     {
-        memory = new Event[maxsize];
+        this->memory = new Event[this->maxsize];
     }
     ~EventMemory()
     {
-        delete[] memory;
+        delete[] this->memory;
     }
     
     void add(Event e);

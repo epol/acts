@@ -58,7 +58,7 @@ void EventMemory::add(Event e)
         // The array is not full, yet
         ++(this->used);
     }
-    this->first = (this->first -1)%this->maxsize;
+    this->first = (this->first == 0) ? (this->maxsize - 1 ) : (this->first -1);
     this->memory[this->first] = e;
 }
 
@@ -79,9 +79,9 @@ Event * EventMemory::get()
         Event * newmemory = new Event[this->maxsize];
         for (int i = 0; i<this->maxsize ; ++i)
         {
-            newmemory[i] = this->memory[(this->first + i)%maxsize];
+            newmemory[i] = this->memory[(this->first + i)%this->maxsize];
         }
-        delete this->memory;
+        delete[] this->memory;
         this->memory = newmemory;
         this->first = 0;
         return this->memory;
