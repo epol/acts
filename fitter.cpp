@@ -25,6 +25,7 @@
  */
 
 #include "fitter.hpp"
+#include "computer.hpp"
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multimin.h>
 
@@ -42,6 +43,7 @@ void EventMemory::add(Event e)
 }
 
 Event * EventMemory::get()
+// returns pointer to first element of a correctly ordered array
 {
     if (this->used < this->maxsize)
     {
@@ -70,13 +72,31 @@ Event * EventMemory::get()
 double rolling_chi2 (const gsl_vector *v, void *params)
 // this signature is required by gsl
 {
-    double x, y;
+    double fC, fA;
     EventMemory* m = (EventMemory*)params;
     
-    x = gsl_vector_get(v, 0);
-    y = gsl_vector_get(v, 1);
- 
-    return x*x+y*y;
+    fC = gsl_vector_get(v, 0);
+    fA = gsl_vector_get(v, 1);
+
+    SimpleSimulator s(0.05, fC, fA, 45); // very inefficient, we'll use the one in the computer instance
+    
+    double chi2_accumulator = 0;
+    
+    for (int i=0; i<1 /*m->size()*/; ++i)
+    {
+        Event ev_real = m->get()[i];
+        Event ev_sim = s.simulate(ev_real.launch);
+        
+        // FIXME the algebra is a disaster
+        
+        double deltax = ev_real.target.x - ev_sim.target.x;
+        double deltay = ev_real.target.y - ev_sim.target.y;
+        
+        double chi2_piece = deltax*deltax + deltay*deltay;
+        
+        chi2_accumulator += chi2_piece * 1; // FIXME implement weights
+    }
+    return chi2_accumulator;
 }
 
 int Minimizer::minimize(EventMemory* mem)
@@ -138,6 +158,7 @@ void Fitter::update_values()
     else cout << "Fit successful" << endl;
     cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
     
+    // TODO: actually move values somewhere
     
     this->updatedFriction = true;
 }

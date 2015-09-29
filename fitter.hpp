@@ -65,7 +65,7 @@ private:
     static const int npars = 2;
     double startingPoint[npars] = {0};
     
-    double accuracy = 1e-4;
+    double accuracy = 1e-5;
     double step = 1;
     double maxiter = 100;
     

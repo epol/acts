@@ -42,10 +42,13 @@ int main(int argc, char** argv)
     }
     
     Computer c(45);
-    SimpleSimulator s(0.05, 0, 0, 45);
+    SimpleSimulator s(0.05, 1, 2, 45);
     Launch l = c.calculate_launch_params(Target(atof(argv[1]), atof(argv[2])),1e3);
     Event e = s.simulate(l);
     cout << e << endl;
+    
+    c.add_event(e);
+    c.update_values();
     
     random_device rd;
     WorldSimulator w(0.05, 0, 0, 45, rd());
@@ -53,8 +56,6 @@ int main(int argc, char** argv)
     e = w.simulate(l);
     cout << e << endl;
     
-    c.add_event(e);
-    c.update_values();
     
     return 0;
 }
