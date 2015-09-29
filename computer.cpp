@@ -232,8 +232,21 @@ Launch Computer::calculate_launch_params(Target target, double speed)
             t.phi += M_PI;
         }
         params.phi -= (t.phi - polarTarget.phi); // The derivative is 1
+        if (params.phi < 0)
+        {
+            params.phi += M_PI*2;
+        }
+        else
+        {
+            if (params.phi >= 2*M_PI)
+            {
+                params.phi -= 2*M_PI;
+            }
+        }
+        
         //params.theta -= (t.r - polarTarget.r) * gOnSpeed2 /2 / cos(2*params.theta) ;
-        params.theta -= (t.r - polarTarget.r) / partial_d_on_partial_theta(simpleSim,params);
+        double dd = partial_d_on_partial_theta(simpleSim,params);
+        params.theta -= (polarTarget.r - t.r) / dd ;
         error = hypot(target.x - currentTarget.x,target.y - currentTarget.y);
         ++counter;
     }
@@ -247,6 +260,15 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     return params;
 }
 
+double calculate_f_near(SimpleSimulator simulator, Launch l, double h)
+{   
+    l.theta = l.theta + h;
+    Target target = simulator.simulate(l).target;
+    double d = hypot(target.x,target.y);
+    
+    return d;
+}
+
 double partial_d_on_partial_theta(SimpleSimulator simulator, Launch l)
 {
     /* This function is used to approximate the derivative of d respect
@@ -255,18 +277,26 @@ double partial_d_on_partial_theta(SimpleSimulator simulator, Launch l)
      * TODO: choose h in some smart way
      */
     double h = 1e-10;
-    // Calculate f(x+h)
-    Launch launch_plus = l;
-    launch_plus.theta = l.theta + h;
-    Target target_plus = simulator.simulate(launch_plus).target;
-    double d_plus = hypot(target_plus.x,target_plus.y);
-    // Calculate f(x-h)
-    Launch launch_minus = l;
-    launch_plus.theta = l.theta - h;
-    Target target_minus = simulator.simulate(launch_minus).target;
-    double d_minus = hypot(target_minus.x,target_minus.y);
-    // The derivative
-    return (d_plus - d_minus)/(2*h);
+
+    double dd = 0;
+    // dd = ( f(x-2h) -8 f(x-h) + 8 f(x+h) - f(x-2h) ) /12h
+    /*
+    dd += calculate_f_near(simulator,l,-2*h) ;
+    dd += (-8)* calculate_f_near(simulator,l,-h) ;
+    dd += 8* calculate_f_near(simulator,l,h) ;
+    dd += (-1)* calculate_f_near(simulator,l,2*h) ;
+    dd /= 12 * h;
+    */
+    
+    double dd2 = calculate_f_near(simulator,l,-2*h) - calculate_f_near(simulator,l,2*h);
+    double dd1 = calculate_f_near(simulator,l,h) - calculate_f_near(simulator,l,-h);
+    dd = (dd2 + 8*dd1)/(12*h);
+    
+    /*
+    dd = (calculate_f_near(simulator,l,h) - calculate_f_near(simulator,l,-h) ) / (2*h);
+    */
+    
+    return dd;
 }
 
 // END: calculate_launch_params code
