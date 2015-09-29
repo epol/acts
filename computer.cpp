@@ -191,7 +191,10 @@ public:
     
     Polar(double r, double phi) : r(r), phi(phi) {}
     Polar() {}
+    
 };
+
+double partial_d_on_partial_theta(SimpleSimulator simulator, Launch l);
 
 Launch Computer::calculate_launch_params(Target target, double speed)
 {
@@ -218,7 +221,8 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     int counter = 0;
     this->simpleSim.set_friction(this->frictionC, this->frictionA);
     
-    double gOnSpeed2 = this->simpleSim.get_gravity()/(speed*speed); // g / (speed *speed) to be used in \partial r / \partial theta
+    // TODO: remove the following line
+    //double gOnSpeed2 = this->simpleSim.get_gravity()/(speed*speed); // g / (speed *speed) to be used in \partial r / \partial theta
     do
     {
         currentTarget = this->simpleSim.simulate(params).target;
@@ -228,7 +232,8 @@ Launch Computer::calculate_launch_params(Target target, double speed)
             t.phi += M_PI;
         }
         params.phi -= (t.phi - polarTarget.phi); // The derivative is 1
-        params.theta -= (t.r - polarTarget.r) * gOnSpeed2 /2 / cos(2*params.theta) ;
+        //params.theta -= (t.r - polarTarget.r) * gOnSpeed2 /2 / cos(2*params.theta) ;
+        params.theta -= (t.r - polarTarget.r) / partial_d_on_partial_theta(simpleSim,params);
         error = hypot(target.x - currentTarget.x,target.y - currentTarget.y);
         ++counter;
     }
@@ -236,11 +241,32 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     
     if (error > d*eps)
     {
-        cout << "Warning: nonzero reached" << endl;
+        cout << "Warning: nonzero reached. Error: " << error/d << endl;
     }
     
     return params;
 }
 
+double partial_d_on_partial_theta(SimpleSimulator simulator, Launch l)
+{
+    /* This function is used to approximate the derivative of d respect
+     * to theta using a centered difference
+     * 
+     * TODO: choose h in some smart way
+     */
+    double h = 1e-10;
+    // Calculate f(x+h)
+    Launch launch_plus = l;
+    launch_plus.theta = l.theta + h;
+    Target target_plus = simulator.simulate(launch_plus).target;
+    double d_plus = hypot(target_plus.x,target_plus.y);
+    // Calculate f(x-h)
+    Launch launch_minus = l;
+    launch_plus.theta = l.theta - h;
+    Target target_minus = simulator.simulate(launch_minus).target;
+    double d_minus = hypot(target_minus.x,target_minus.y);
+    // The derivative
+    return (d_plus - d_minus)/(2*h);
+}
 
 // END: calculate_launch_params code
