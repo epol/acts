@@ -134,18 +134,18 @@ void Fitter::update_values()
 {
     minimizer.set_starting_point(frictionC, frictionA);
     int status = minimizer.minimize(&memory);
-    if (status!=0) cout << "Fit failed with status:" << status << endl;
+    if (status!=0) cout << "Fit failed with status: " << status << endl;
     else cout << "Fit successful" << endl;
     cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
     
     
-    this->validFriction = true;
+    this->updatedFriction = true;
 }
 
 
 double Fitter::get_frictionA()
 {
-    if (! (this->validFriction))
+    if (! (this->updatedFriction))
     {
         this->update_values();
     }
@@ -154,7 +154,7 @@ double Fitter::get_frictionA()
 
 double Fitter::get_frictionC()
 {
-    if (! (this->validFriction))
+    if (! (this->updatedFriction))
     {
         this->update_values();
     }

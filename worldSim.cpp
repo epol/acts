@@ -31,7 +31,7 @@
 using namespace std;
 
 Vec3D WorldSimulator::calculate_friction(Vec3D position, Vec3D velocity)
-    // Calculate the acceleration due to friction at a given position and velocity
+    // Calculate the acceleration due to friction at a given altitude and velocity
 {
     normal_distribution<double> gauss(0, 1);
     double realC = frictionC + frictionCsigma * gauss(g);

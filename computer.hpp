@@ -60,9 +60,8 @@ public:
     {
         fitter.add_event(event);
     }
-    void update_values(Event event)
+    void update_values()
     {
-        fitter.add_event(event);
         fitter.update_values();
         // TODO values transfer to computer
     }

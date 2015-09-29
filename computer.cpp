@@ -36,7 +36,7 @@
 using namespace std;
 
 Vec3D SimpleSimulator::calculate_friction(Vec3D position, Vec3D velocity)
-    // Calculate the acceleration due to friction at a given position and velocity
+    // Calculate the acceleration due to friction at a given altitude and velocity
 {
     double friction_coeff = frictionC * exp(-frictionA * position.z);
     return -friction_coeff * velocity;

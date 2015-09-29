@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     cout << e << endl;
     
     c.add_event(e);
-    c.update_values(e);
+    c.update_values();
     
     return 0;
 }

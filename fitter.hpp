@@ -92,10 +92,10 @@ class Fitter
 private:
     double frictionC = 0;
     double frictionA = 0;
-    bool validFriction = true;
+    bool updatedFriction = true;
     
     double latitude;
-    EventMemory memory; // TODO: set a sound memory size
+    EventMemory memory;
     Minimizer minimizer;
     
 public:
@@ -104,12 +104,11 @@ public:
     {
         this->frictionC = frictionC;
         this->frictionA = frictionA;
-        minimizer.set_starting_point(frictionC, frictionA);
     }
     
     inline void add_event(Event event)
     {
-        this->validFriction = false;
+        this->updatedFriction = false;
         this->memory.add(event);
     }
     

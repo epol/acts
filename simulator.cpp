@@ -49,7 +49,7 @@ Event Simulator::simulate (Launch launch)
     do 
     {
         Vec3D acceleration = this->calculate_friction(position,velocity) + this->calculate_nonfriction(position,velocity);
-        position = position + .5 * (this->dtime*this->dtime) * acceleration + this->dtime * velocity;
+        position = position + this->dtime * velocity + .5 * (this->dtime*this->dtime) * acceleration;
         velocity = velocity + this->dtime * acceleration;
         t += this->dtime;
     }
