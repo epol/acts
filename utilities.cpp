@@ -25,6 +25,7 @@
  */
 
 #include <iostream>
+#include <cmath>
 #include "utilities.hpp"
 
 Vec3D operator* (const double lambda, const Vec3D vec)
@@ -48,6 +49,7 @@ Vec3D operator- (const Vec3D a, const Vec3D b)
 }
 
 Vec3D operator^ (const Vec3D a, const Vec3D b)
+// 3D vector product in cartesian coordinates
 {
     return Vec3D(
                     a.y*b.z - a.z*b.y,
@@ -61,16 +63,51 @@ std::ostream& operator<< (std::ostream& ostr, const Vec3D a)
     return ostr << "(" << a.x << ", " << a.y << ", " << a.z << ")" << std::endl;
 }
 
+// -----------------
 
 std::ostream& operator<< (std::ostream& ostr, const Launch l)
 {
     return ostr << "Launch(theta=" << l.theta << ", phi=" << l.phi << ", speed=" << l.speed << ")";
 }
 
+// -----------------
+
+double Target::distance()
+{
+    return hypot(this->x, this->y);
+}
+
+double Target::phi()
+{
+    return atan2(this->y, this->x);
+}
+
+Target operator* (const double lambda, const Target trg)
+{
+    return Target(lambda* trg.x, lambda* trg.y);
+}
+
+Target operator+ (const Target a, const Target b)
+{
+    return Target(a.x+b.x, a.y+b.y);
+}
+
+Target operator- (const Target a)
+{
+    return Target(-a.x, -a.y);
+}
+
+Target operator- (const Target a, const Target b)
+{
+    return a + ( -b );
+}
+
 std::ostream& operator<< (std::ostream& ostr, const Target t)
 {
     return ostr << "Target(" << t.x << ", " << t.y << ")";
 }
+
+// -----------------
 
 std::ostream& operator<< (std::ostream& ostr, const Event e)
 {

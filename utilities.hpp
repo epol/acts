@@ -39,12 +39,13 @@ public:
     
     inline Vec3D(double x, double y, double z) : x(x), y(y), z(z) {}
     inline Vec3D() : x(0), y(0), z(0) {}
-    // TODO: operators
+
     friend Vec3D operator* (const double lambda, const Vec3D vec);
     friend Vec3D operator+ (const Vec3D a, const Vec3D b);
     friend Vec3D operator- (const Vec3D a);
     friend Vec3D operator- (const Vec3D a, const Vec3D b);
     friend Vec3D operator^ (const Vec3D a, const Vec3D b);
+    
     friend std::ostream& operator<< (std::ostream& ostr, const Vec3D a);
 };
 
@@ -63,6 +64,7 @@ public:
     inline Launch(double theta, double phi, double speed) : 
         theta(theta), phi(mod(phi,2*M_PI)), speed(speed) { }
     inline Launch() {}
+    
     friend std::ostream& operator<< (std::ostream& ostr, const Launch l);
 };
 
@@ -75,6 +77,16 @@ public:
     
     inline Target(double x, double y) : x(x), y(y) {}
     inline Target() {}
+    
+    double distance();
+    double phi();
+
+    
+    friend Target operator* (const double lambda, const Target trg);
+    friend Target operator+ (const Target a, const Target b);
+    friend Target operator- (const Target a);
+    friend Target operator- (const Target a, const Target b);
+    
     friend std::ostream& operator<< (std::ostream& ostr, const Target t);
 };
 
@@ -88,6 +100,7 @@ public:
     inline Event(Launch launch, Target target, double time=0) :
         launch(launch), target(target), time(time) {}
     inline Event() {}
+    
     friend std::ostream& operator<< (std::ostream& ostr, const Event e);
 };
 
