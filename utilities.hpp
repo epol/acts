@@ -81,7 +81,6 @@ public:
     double distance();
     double phi();
 
-    
     friend Target operator* (const double lambda, const Target trg);
     friend Target operator+ (const Target a, const Target b);
     friend Target operator- (const Target a);

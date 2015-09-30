@@ -24,10 +24,11 @@
  * 
  */
 
-#include "fitter.hpp"
-#include "computer.hpp"
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multimin.h>
+#include "utilities.hpp"
+#include "computer.hpp"
+#include "fitter.hpp"
 
 using namespace std;
 
@@ -69,32 +70,27 @@ Event * EventMemory::get()
     }
 }
 
-double rolling_chi2 (const gsl_vector *v, void *params)
+double chi2 (const gsl_vector *v, void *params)
 // this signature is required by gsl
 {
-    double fC, fA;
+    double fC = gsl_vector_get(v, 0);
+    double fA = gsl_vector_get(v, 1);
+    
     EventMemory* m = (EventMemory*)params;
     
-    fC = gsl_vector_get(v, 0);
-    fA = gsl_vector_get(v, 1);
-
     SimpleSimulator s(0.05, fC, fA, 45); // very inefficient, we'll use the one in the computer instance
     
     double chi2_accumulator = 0;
     
-    for (int i=0; i<1 /*m->size()*/; ++i)
+    for (int i=0; i< m->size(); ++i)
     {
         Event ev_real = m->get()[i];
         Event ev_sim = s.simulate(ev_real.launch);
         
-        // FIXME the algebra is a disaster
+        Target delta = ev_real.target - ev_sim.target;
+        double chi2_piece = delta.distance() * delta.distance();
         
-        double deltax = ev_real.target.x - ev_sim.target.x;
-        double deltay = ev_real.target.y - ev_sim.target.y;
-        
-        double chi2_piece = deltax*deltax + deltay*deltay;
-        
-        chi2_accumulator += chi2_piece * 1; // FIXME implement weights
+        chi2_accumulator += chi2_piece / pow(2, i);
     }
     return chi2_accumulator;
 }
@@ -121,7 +117,7 @@ int Minimizer::minimize(EventMemory* mem)
 
     /* Initialize method and iterate */
     minex_func.n = npars;
-    minex_func.f = rolling_chi2;  // here we use our function
+    minex_func.f = chi2;  // here we use our function
     minex_func.params = (void*)mem;  // pass the event memory as parameter
 
     gsl_multimin_fminimizer* s = gsl_multimin_fminimizer_alloc (T, nvars);
