@@ -30,7 +30,7 @@ OBJS=main.o worldSim.o computer.o fitter.o simulator.o utilities.o
 build: $(OBJS)
 	$(CXX) $(OBJS) $(CPPFLAGS) -o main
 
-main.o: main.cpp utilities.hpp simulator.hpp computer.hpp
+main.o: main.cpp utilities.hpp simulator.hpp computer.hpp worldSim.hpp
 	$(CXX) -c main.cpp -o main.o $(CPPFLAGS)
 
 worldSim.o: worldSim.cpp utilities.hpp simulator.hpp worldSim.hpp
@@ -39,7 +39,7 @@ worldSim.o: worldSim.cpp utilities.hpp simulator.hpp worldSim.hpp
 computer.o: computer.cpp utilities.hpp simulator.hpp fitter.hpp computer.hpp
 	$(CXX) -c computer.cpp -o computer.o $(CPPFLAGS)
 
-fitter.o: fitter.cpp utilities.hpp fitter.hpp
+fitter.o: fitter.cpp utilities.hpp simulator.hpp fitter.hpp
 	$(CXX) -c fitter.cpp -o fitter.o $(CPPFLAGS)
 
 simulator.o: simulator.cpp utilities.hpp simulator.hpp
