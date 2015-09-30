@@ -43,11 +43,21 @@ int main(int argc, char** argv)
     
     Computer c(45, 0, 0);
     Target t = Target(atof(argv[1]), atof(argv[2]));
-    Launch l = c.calculate_launch_params(t, 1e3);
+    Launch l;
+    try
+    {
+        l = c.calculate_launch_params(t, 1e3);
+    }
+    catch (ComputerException e)
+    {
+        cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
+        exit(1);
+    }
     cout << "Expected event:  " << Event(l, t, 0) << endl;
     
     Event e = c.simulate(l);
-    cout << "Simulated event: " << e << endl;
+    cout << "Simulated event: " << e;
+    cout << " error: " << (e.target - t).distance()/ t.distance();
     
     c.add_event(e);
     c.update_values();

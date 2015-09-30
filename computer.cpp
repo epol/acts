@@ -194,7 +194,7 @@ public:
     
 };
 
-double partial_d_on_partial_theta(SimpleSimulator simulator, Launch l);
+double partial_r_on_partial_theta(SimpleSimulator simulator, Launch l);
 
 Launch Computer::calculate_launch_params(Target target, double speed)
 {
@@ -221,8 +221,9 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     int counter = 0;
     this->simpleSim.set_friction(this->frictionC, this->frictionA);
     
-    // TODO: remove the following line
-    //double gOnSpeed2 = this->simpleSim.get_gravity()/(speed*speed); // g / (speed *speed) to be used in \partial r / \partial theta
+    // TODO: remove the following line, or maybe not
+    double gOnSpeed2 = this->simpleSim.get_gravity()/(speed*speed); // g / (speed *speed) to be used in \partial r / \partial theta
+    //double speed2OnG = (speed*speed)/this->simpleSim.get_gravity(); 
     do
     {
         currentTarget = this->simpleSim.simulate(params).target;
@@ -245,8 +246,17 @@ Launch Computer::calculate_launch_params(Target target, double speed)
         }
         
         //params.theta -= (t.r - polarTarget.r) * gOnSpeed2 /2 / cos(2*params.theta) ;
-        double dd = partial_d_on_partial_theta(simpleSim,params);
-        params.theta -= (polarTarget.r - t.r) / dd ;
+        double dr = partial_r_on_partial_theta(simpleSim,params);
+        // if we have too few power we find a small derivative
+        if (dr*gOnSpeed2/2 < 1e-2)
+        {
+            throw ComputerException(ComputerException::LOWPOWER);
+        }
+        params.theta -= (t.r - polarTarget.r) / dr ;
+        if ((params.theta > M_PI/2) || (params.theta < 0))
+        {
+            throw ComputerException(ComputerException::ZEROFINDERTHETA);
+        }
         error = hypot(target.x - currentTarget.x,target.y - currentTarget.y);
         ++counter;
     }
@@ -264,12 +274,11 @@ double calculate_f_near(SimpleSimulator simulator, Launch l, double h)
 {   
     l.theta = l.theta + h;
     Target target = simulator.simulate(l).target;
-    double d = hypot(target.x,target.y);
-    
-    return d;
+    double r = hypot(target.x,target.y);
+    return r;
 }
 
-double partial_d_on_partial_theta(SimpleSimulator simulator, Launch l)
+double partial_r_on_partial_theta(SimpleSimulator simulator, Launch l)
 {
     /* This function is used to approximate the derivative of d respect
      * to theta using a centered difference
@@ -278,25 +287,26 @@ double partial_d_on_partial_theta(SimpleSimulator simulator, Launch l)
      */
     double h = 1e-10;
 
-    double dd = 0;
+    double dr = 0;
     // dd = ( f(x-2h) -8 f(x-h) + 8 f(x+h) - f(x-2h) ) /12h
     /*
-    dd += calculate_f_near(simulator,l,-2*h) ;
-    dd += (-8)* calculate_f_near(simulator,l,-h) ;
-    dd += 8* calculate_f_near(simulator,l,h) ;
-    dd += (-1)* calculate_f_near(simulator,l,2*h) ;
-    dd /= 12 * h;
+    dr += calculate_f_near(simulator,l,-2*h) ;
+    dr += (-8)* calculate_f_near(simulator,l,-h) ;
+    dr += 8* calculate_f_near(simulator,l,h) ;
+    dr += (-1)* calculate_f_near(simulator,l,2*h) ;
+    dr /= 12 * h;
     */
     
-    double dd2 = calculate_f_near(simulator,l,-2*h) - calculate_f_near(simulator,l,2*h);
-    double dd1 = calculate_f_near(simulator,l,h) - calculate_f_near(simulator,l,-h);
-    dd = (dd2 + 8*dd1)/(12*h);
+    double dr2 = calculate_f_near(simulator,l,-2*h) - calculate_f_near(simulator,l,2*h);
+    double dr1 = calculate_f_near(simulator,l,h) - calculate_f_near(simulator,l,-h);
+    dr = (dr2 + 8*dr1)/(12*h);
     
     /*
-    dd = (calculate_f_near(simulator,l,h) - calculate_f_near(simulator,l,-h) ) / (2*h);
+    dr = (calculate_f_near(simulator,l,h) - calculate_f_near(simulator,l,-h) ) / (2*h);
     */
     
-    return dd;
+    // TODO: why the derivative has the wrong sign?
+    return -dr;
 }
 
 // END: calculate_launch_params code

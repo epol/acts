@@ -138,20 +138,23 @@ public:
 class ComputerException
 {
 public:
-    enum errcode {LOWPOWER};
+    enum errcode {LOWPOWER,ZEROFINDERTHETA};
 private:
     enum errcode type;
 public:
     ComputerException( enum errcode e ) : type(e) {};
-    const char *ShowReason() const
+    const char *show_reason() const
     {
         switch (this->type)
         {
         case LOWPOWER:
-            return "Launch power is not sufficient";
+            return "launch power is not sufficient";
+            break;
+        case ZEROFINDERTHETA:
+            return "error in computing the theta angle in the zero finder";
             break;
         default:
-            return "Unknown ComputerException error code";
+            return "unknown ComputerException error code";
             break;
         }
     }
