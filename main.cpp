@@ -41,11 +41,13 @@ int main(int argc, char** argv)
         return 1;
     }
     
-    Computer c(45);
-    SimpleSimulator s(0.05, 1, 2, 45);
-    Launch l = c.calculate_launch_params(Target(atof(argv[1]), atof(argv[2])),1e3);
-    Event e = s.simulate(l);
-    cout << e << endl;
+    Computer c(45, 0, 0);
+    Target t = Target(atof(argv[1]), atof(argv[2]));
+    Launch l = c.calculate_launch_params(t, 1e3);
+    cout << "Expected event:  " << Event(l, t, 0) << endl;
+    
+    Event e = c.simulate(l);
+    cout << "Simulated event: " << e << endl;
     
     c.add_event(e);
     c.update_values();

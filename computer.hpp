@@ -52,10 +52,11 @@ private:
     
 public:
     Computer(double latitude, double frictionC=0, double frictionA=0) :
-        simpleSim(0.05, frictionC, frictionA, latitude),
+        simpleSim(0.02, frictionC, frictionA, latitude),
         fitter(frictionC, frictionA, latitude) {}
     
     Launch calculate_launch_params(Target target, double speed);
+    
     void add_event(Event event)
     {
         fitter.add_event(event);
@@ -64,6 +65,10 @@ public:
     {
         fitter.update_values();
         // TODO values transfer to computer
+    }
+    Event simulate(Launch launch)
+    {
+        return simpleSim.simulate(launch);
     }
 };
 

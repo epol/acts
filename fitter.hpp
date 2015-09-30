@@ -38,6 +38,7 @@ private:
     Event * memory;
     int used = 0;
     int first = 0;
+
 public:
     EventMemory(int maxsize) : maxsize(maxsize), first(maxsize)
     {
