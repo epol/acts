@@ -199,19 +199,14 @@ double partial_r_on_partial_theta(SimpleSimulator simulator, Launch l);
 Launch Computer::calculate_launch_params(Target target, double speed)
 {
     // Initial point for zerofinder
-    double d = hypot(target.x,target.y);
+    double d = target.distance();
     double gd = this->simpleSim.get_gravity() * d;
     if (speed*speed < gd )
     {
         throw ComputerException(ComputerException::LOWPOWER);
     }
 
-    double phi = atan(target.y/target.x); // phi restricted to [-pi/2,pi/2]
-    if (target.x < 0)
-    {
-        // Extending to [-pi/2,3/2pi]
-        phi += M_PI;
-    }
+    double phi = target.phi();
 
     Launch params(.5*asin(gd/(speed*speed)), phi, speed);
     Polar polarTarget = Polar(d,phi);
@@ -227,19 +222,15 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     do
     {
         currentTarget = this->simpleSim.simulate(params).target;
-        Polar t = Polar(hypot(currentTarget.x,currentTarget.y),atan(currentTarget.y/currentTarget.x));
-        if (currentTarget.x < 0)
-        {
-            t.phi += M_PI;
-        }
+        Polar t = Polar(currentTarget.distance(),currentTarget.phi());
         params.phi -= (t.phi - polarTarget.phi); // The derivative is 1
-        if (params.phi < 0)
+        if (params.phi < -M_PI)
         {
             params.phi += M_PI*2;
         }
         else
         {
-            if (params.phi >= 2*M_PI)
+            if (params.phi > M_PI)
             {
                 params.phi -= 2*M_PI;
             }
@@ -257,7 +248,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
         {
             throw ComputerException(ComputerException::ZEROFINDERTHETA);
         }
-        error = hypot(target.x - currentTarget.x,target.y - currentTarget.y);
+        error = (target-currentTarget).distance();
         ++counter;
     }
     while (error > d*eps && counter < 1000);
@@ -274,7 +265,7 @@ double calculate_f_near(SimpleSimulator simulator, Launch l, double h)
 {   
     l.theta = l.theta + h;
     Target target = simulator.simulate(l).target;
-    double r = hypot(target.x,target.y);
+    double r = target.distance();
     return r;
 }
 
