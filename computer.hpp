@@ -28,9 +28,9 @@
 #define _COMPUTER_HPP
 
 
+#include <gsl/gsl_vector.h>
 #include "utilities.hpp"
 #include "simulator.hpp"
-#include "fitter.hpp"
 
 class SimpleSimulator : public Simulator
 {
@@ -44,28 +44,90 @@ public:
     
 };
 
+class EventMemory
+{
+private:
+    int maxsize;
+    Event * memory;
+    int used = 0;
+    int first = 0;
+
+public:
+    EventMemory(int maxsize) : maxsize(maxsize), first(maxsize)
+    {
+        this->memory = new Event[this->maxsize];
+    }
+    ~EventMemory()
+    {
+        delete[] this->memory;
+    }
+    
+    void add(Event e);
+    Event * get();
+    inline int size()
+    {
+        return this->used;
+    }
+};
+
+class Minimizer
+{
+private:
+    static const int nvars = 2;
+    static const int npars = 2;
+    double startingPoint[npars] = {0};
+    
+    double accuracy = 1e-5;
+    double step = 1;
+    double maxiter = 100;
+    
+    int status = -1;
+
+public:
+    double finalPoint[npars];
+    double minValue;
+
+    Minimizer() {};
+    
+    void set_starting_point(double x0, double y0)
+    {
+        startingPoint[0] = x0;
+        startingPoint[1] = y0;
+    }
+
+    int minimize(EventMemory* mem);
+};
+
+double chi2 (const gsl_vector *v, void *params);
+
 class Computer
 {
 private:
     SimpleSimulator simpleSim;
-    Fitter fitter;
+    EventMemory memory;
+    Minimizer minimizer;
+    
+    double frictionC;
+    double frictionA;
+    bool updatedFriction = true;
     
 public:
-    Computer(double latitude, double frictionC=0, double frictionA=0) :
+    
+    Computer(double latitude, double frictionC=0, double frictionA=0, int memorysize=10) :
         simpleSim(0.02, frictionC, frictionA, latitude),
-        fitter(frictionC, frictionA, latitude) {}
+        memory(memorysize),
+        frictionC(frictionC),
+        frictionA(frictionA) {}
     
     Launch calculate_launch_params(Target target, double speed);
     
-    void add_event(Event event)
+    inline void add_event(Event event)
     {
-        fitter.add_event(event);
+        this->updatedFriction = false;
+        this->memory.add(event);
     }
-    void update_values()
-    {
-        fitter.update_values();
-        // TODO values transfer to computer
-    }
+    void update_values();
+    
     Event simulate(Launch launch)
     {
         return simpleSim.simulate(launch);
