@@ -152,7 +152,7 @@ private:
     enum errcode type;
 public:
     ComputerException( enum errcode e ) : type(e) {};
-    const char *ShowReason() const
+    const char *show_reason() const
     {
         switch (this->type)
         {
@@ -166,7 +166,7 @@ public:
             return "Negative theta";
             break;
         case SOLVERERROR:
-            return "Solver error";
+            return "Solver error or low power";
             break;
         default:
             return "Unknown ComputerException error code";

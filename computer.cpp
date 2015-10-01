@@ -258,7 +258,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
         int status = gsl_multiroot_fsolver_iterate(s);
         if (status)
         {
-            throw ComputerException::SOLVERERROR;
+            throw ComputerException(ComputerException::SOLVERERROR);
         }
         ++iteration_count;
     }
@@ -267,7 +267,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     {
         if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps2*d)!=GSL_SUCCESS)
         {
-            throw ComputerException::LOWPOWER;
+            throw ComputerException(ComputerException::LOWPOWER);
         }
     }
     
@@ -281,7 +281,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     l.theta = mod(l.theta, 2*M_PI);
     if (l.theta > M_PI)
     {
-        throw ComputerException::NEGATIVETHETA;
+        throw ComputerException(ComputerException::NEGATIVETHETA);
     }
     if (l.theta > M_PI_2)
     {
