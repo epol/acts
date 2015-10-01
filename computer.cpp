@@ -194,7 +194,7 @@ public:
     
 };
 
-double partial_r_on_partial_theta(SimpleSimulator simulator, Launch l);
+double partial_r_on_partial_theta(SimpleSimulator& simulator, Launch l);
 
 Launch Computer::calculate_launch_params(Target target, double speed)
 {
@@ -238,7 +238,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
         
         //params.theta -= (t.r - polarTarget.r) * gOnSpeed2 /2 / cos(2*params.theta) ;
         double dr = partial_r_on_partial_theta(simpleSim,params);
-        // if we have too few power we find a small derivative
+        // if we have too little power we find a small derivative
         if (dr*gOnSpeed2/2 < 1e-2)
         {
             throw ComputerException(ComputerException::LOWPOWER);
@@ -261,7 +261,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     return params;
 }
 
-double calculate_f_near(SimpleSimulator simulator, Launch l, double h)
+double calculate_f_near(SimpleSimulator& simulator, Launch l, double h)
 {   
     l.theta = l.theta + h;
     Target target = simulator.simulate(l).target;
@@ -269,7 +269,7 @@ double calculate_f_near(SimpleSimulator simulator, Launch l, double h)
     return r;
 }
 
-double partial_r_on_partial_theta(SimpleSimulator simulator, Launch l)
+double partial_r_on_partial_theta(SimpleSimulator& simulator, Launch l)
 {
     /* This function is used to approximate the derivative of d respect
      * to theta using a centered difference
