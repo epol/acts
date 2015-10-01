@@ -219,6 +219,7 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     //double speed2OnG = (speed*speed)/this->simpleSim.get_gravity(); 
     do
     {
+        cout << params << endl;
         currentTarget = this->simpleSim.simulate(params).target;
         Polar t = Polar(currentTarget.distance(),currentTarget.phi());
         params.phi -= (t.phi - polarTarget.phi); // The derivative is 1
@@ -237,10 +238,15 @@ Launch Computer::calculate_launch_params(Target target, double speed)
         //params.theta -= (t.r - polarTarget.r) * gOnSpeed2 /2 / cos(2*params.theta) ;
         double dr = partial_r_on_partial_theta(simpleSim,params);
         // if we have too little power we find a small derivative
-        if (dr*gOnSpeed2/2 < 1e-2)
+        /*if (dr*gOnSpeed2/2 < 1e-5)
+        {
+            throw ComputerException(ComputerException::ZEROFINDERZERODERIVATIVE);
+        }*/
+        cout << dr << endl;
+/*        if (dr > 0)
         {
             throw ComputerException(ComputerException::LOWPOWER);
-        }
+        }*/
         params.theta -= (t.r - polarTarget.r) / dr ;
         if ((params.theta > M_PI/2) || (params.theta < 0))
         {

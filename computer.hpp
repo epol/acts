@@ -147,7 +147,7 @@ public:
 class ComputerException
 {
 public:
-    enum errcode {LOWPOWER,ZEROFINDERTHETA};
+    enum errcode {LOWPOWER,ZEROFINDERTHETA,ZEROFINDERZERODERIVATIVE};
 private:
     enum errcode type;
 public:
@@ -161,6 +161,9 @@ public:
             break;
         case ZEROFINDERTHETA:
             return "error in computing the theta angle in the zero finder";
+            break;
+        case ZEROFINDERZERODERIVATIVE:
+            return "derivative zero in computing the launching solution";
             break;
         default:
             return "unknown ComputerException error code";
