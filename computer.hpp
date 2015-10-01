@@ -70,6 +70,8 @@ public:
     }
 };
 
+class Computer;
+
 class Minimizer
 {
 private:
@@ -91,14 +93,12 @@ public:
     
     void set_starting_point(double x0, double y0)
     {
-        startingPoint[0] = x0;
-        startingPoint[1] = y0;
+        this->startingPoint[0] = x0;
+        this->startingPoint[1] = y0;
     }
 
-    int minimize(EventMemory* mem);
+    int minimize(Computer* comp);
 };
-
-double chi2 (const gsl_vector *v, void *params);
 
 class Computer
 {
@@ -128,9 +128,18 @@ public:
     }
     void update_values();
     
+    inline void set_simpleSim_friction(double frictionC, double frictionA)
+    {
+        this->simpleSim.set_friction(frictionC, frictionA);
+    }
     Event simulate(Launch launch)
     {
-        return simpleSim.simulate(launch);
+        return this->simpleSim.simulate(launch);
+    }
+    
+    EventMemory* get_memory()
+    {
+        return &(this->memory);
     }
 };
 

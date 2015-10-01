@@ -92,16 +92,16 @@ double chi2 (const gsl_vector *v, void *params)
     double fC = gsl_vector_get(v, 0);
     double fA = gsl_vector_get(v, 1);
     
-    EventMemory* m = (EventMemory*)params;
-    
-    SimpleSimulator s(0.05, fC, fA, 45); // very inefficient, we'll use the one in the computer instance
+    Computer* comp = (Computer*)params;
+    EventMemory* m = comp->get_memory();
+    comp->set_simpleSim_friction(fC, fA);
     
     double chi2_accumulator = 0;
     
     for (int i=0; i< m->size(); ++i)
     {
         Event ev_real = m->get()[i];
-        Event ev_sim = s.simulate(ev_real.launch);
+        Event ev_sim = comp->simulate(ev_real.launch);
         
         Target delta = ev_real.target - ev_sim.target;
         double chi2_piece = delta.distance() * delta.distance();
@@ -111,7 +111,7 @@ double chi2 (const gsl_vector *v, void *params)
     return chi2_accumulator;
 }
 
-int Minimizer::minimize(EventMemory* mem)
+int Minimizer::minimize(Computer* comp)
 {
     const gsl_multimin_fminimizer_type* T = gsl_multimin_fminimizer_nmsimplex2;
     gsl_vector *ss, *x;
@@ -134,7 +134,7 @@ int Minimizer::minimize(EventMemory* mem)
     /* Initialize method and iterate */
     minex_func.n = npars;
     minex_func.f = chi2;  // here we use our function
-    minex_func.params = (void*)mem;  // pass the event memory as parameter
+    minex_func.params = (void*)comp;  // pass a pointer to computer as parameter
 
     gsl_multimin_fminimizer* s = gsl_multimin_fminimizer_alloc (T, nvars);
     gsl_multimin_fminimizer_set(s, &minex_func, x, ss);
@@ -167,17 +167,15 @@ int Minimizer::minimize(EventMemory* mem)
 void Computer::update_values()
 {
     minimizer.set_starting_point(frictionC, frictionA);
-    int status = minimizer.minimize(&memory);
+    int status = minimizer.minimize(this);
+    // FIXME DEBUG
     if (status!=0) cout << "Fit failed with status: " << status << endl;
-    else {
-        // FIXME DEBUG
-        cout << "Fit successful" << endl;
-        cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
-        
-        this->updatedFriction = true;
-        this->frictionC = minimizer.finalPoint[0];
-        this->frictionA = minimizer.finalPoint[1];
-    }
+    else cout << "Fit successful" << endl;
+    cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
+    
+    this->updatedFriction = true;
+    this->frictionC = minimizer.finalPoint[0];
+    this->frictionA = minimizer.finalPoint[1];
 }
 
 
