@@ -46,8 +46,10 @@ Event Simulator::simulate (Launch launch)
             sin(launch.theta)
             );
     double t = 0;
+    Vec3D prev_position(0, 0, 0);
     do 
     {
+        prev_position = position;
         Vec3D acceleration = this->calculate_friction(position,velocity) + this->calculate_nonfriction(position,velocity);
         position = position + this->dtime * velocity + .5 * (this->dtime*this->dtime) * acceleration;
         velocity = velocity + this->dtime * acceleration;
@@ -55,5 +57,7 @@ Event Simulator::simulate (Launch launch)
     }
     while (position.z > 0);
     
-    return Event(launch,Target(position.x,position.y),t);
+    Target trg = Target(0.5 * (position.x + prev_position.x), 0.5 * (position.y + prev_position.y));
+    
+    return Event(launch, trg, t - 0.5*dtime);
 }
