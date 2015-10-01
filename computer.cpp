@@ -251,23 +251,24 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     gsl_vector_free(l0);
     // Begin iteration
     int iteration_count = 0;
-    const double eps = 5e-3*d;
-    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)==GSL_CONTINUE) )
+    const double eps = 1e-3;
+    const double eps2 = 1e-2;
+    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps*d)==GSL_CONTINUE) )
     {
         int status = gsl_multiroot_fsolver_iterate(s);
         if (status)
         {
-            //TODO: should we do something different?
-            cout << "Warning: error at the " << iteration_count << "th iteration: " << gsl_strerror(status) << endl;
-            break;
+            throw ComputerException::SOLVERERROR;
         }
         ++iteration_count;
     }
     
-    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps)!=GSL_SUCCESS)
+    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps*d)!=GSL_SUCCESS)
     {
-        //TODO: should we do something different?
-        cout << "Warning: we haven't reached a zero\n";
+        if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps2*d)!=GSL_SUCCESS)
+        {
+            throw ComputerException::LOWPOWER;
+        }
     }
     
     // Get the found root
