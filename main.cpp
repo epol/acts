@@ -41,7 +41,7 @@ int main(int argc, char** argv)
         return 1;
     }
     
-    Computer c(45, 0, 0);
+    Computer c(45, 10, 10);
     Target t = Target(atof(argv[1]), atof(argv[2]));
     Launch l;
     try
