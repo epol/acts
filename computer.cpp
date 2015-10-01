@@ -277,6 +277,18 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     // Garbage collection
     gsl_multiroot_fsolver_free (s);
     
+    l.theta = mod(l.theta, 2*M_PI);
+    if (l.theta > M_PI)
+    {
+        throw ComputerException::NEGATIVETHETA;
+    }
+    if (l.theta > M_PI_2)
+    {
+        l.theta = M_PI - l.theta;
+        l.phi += M_PI;
+    }
+    l.phi = mod(l.phi, 2*M_PI);
+    
     return l;
 }
 

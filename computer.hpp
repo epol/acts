@@ -147,7 +147,7 @@ public:
 class ComputerException
 {
 public:
-    enum errcode {LOWPOWER,SOLVERINIT};
+    enum errcode {LOWPOWER,SOLVERINIT,NEGATIVETHETA};
 private:
     enum errcode type;
 public:
@@ -161,6 +161,9 @@ public:
             break;
         case SOLVERINIT:
             return "Error initializing the solver";
+            break;
+        case NEGATIVETHETA:
+            return "Negative theta";
             break;
         default:
             return "Unknown ComputerException error code";
