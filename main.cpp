@@ -41,33 +41,42 @@ int main(int argc, char** argv)
         return 1;
     }
     
-    Computer c(45, 10, 10);
     Target t = Target(atof(argv[1]), atof(argv[2]));
-    Launch l;
-    try
+    if (t.distance() < 200)
     {
-        l = c.calculate_launch_params(t, 1e3);
-    }
-    catch (ComputerException e)
-    {
-        cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
+        cout << "Please don't throw so near" << endl;
         exit(1);
     }
     
-    cout << "Expected event:  " << Event(l, t, 0) << endl;
+    Computer c(45, 0, 0);
+    Launch l;
     
-    Event e = c.simulate(l);
-    cout << "Simulated event: " << e << endl;
-    
-    c.add_event(e);
-    c.update_values();
-    
-    random_device rd;
-    WorldSimulator w(0.05, 0, 0, 45, rd());
-    w.set_friction_sigmas(0.01, 0.01);
-    e = w.simulate(l);
-    cout << e << endl;
-    
+    for (int i=0; i<5; ++i)
+    {
+        cout << i+1 << "th launch" << endl;
+        
+        try
+        {
+            l = c.calculate_launch_params(t, 1e3);
+        }
+        catch (ComputerException e)
+        {
+            cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
+            exit(1);
+        }
+        
+        cout << "Expected event:  " << Event(l, t, 0) << endl;
+        
+        random_device rd;
+        WorldSimulator w(0.02, .5, 0, 45, rd());
+        w.set_friction_sigmas(0, 0);
+        Event e = w.simulate(l);
+        cout << "Real event:      " << e << endl;
+        
+        c.add_event(e);
+        c.update_values();
+        cout << endl;
+    }
     
     return 0;
 }
