@@ -194,7 +194,7 @@ public:
 
 int equation (const gsl_vector * x, void * param, gsl_vector * f)
 {
-    const double theta = gsl_vector_get(x,0);
+    const double theta = (atan(gsl_vector_get(x,0)) + M_PI_2)/2;
     const double phi = gsl_vector_get(x,1);
     EquationParam * eq_param = (EquationParam *) param;
     SimpleSimulator * s = eq_param -> s;
@@ -219,17 +219,9 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     {
         throw ComputerException(ComputerException::LOWPOWER);
     }
-
-    gsl_vector_set(l0,0,.5*asin(gd/(speed*speed))); // set theta
-    double phimod = atan(target.y/target.x); // phi restricted to [-pi/2,pi/2]
-    if (target.x > 0)
-    {
-        gsl_vector_set(l0,1,phimod);
-    }
-    else
-    {
-        gsl_vector_set(l0,1,phimod + M_PI);
-    }
+    double theta = .5*asin(gd/(speed*speed));
+    gsl_vector_set(l0,0,tan( 2*theta - M_PI_2)); // set theta
+    gsl_vector_set(l0,1,atan2(target.y,target.x)); // set phi
     
     // Initialize a solver
     const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; // https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
@@ -266,21 +258,12 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     
     // Get the found root
     gsl_vector * root = gsl_multiroot_fsolver_root(s);
-    Launch l(gsl_vector_get(root,0),gsl_vector_get(root,1),speed);
+    Launch l((atan(gsl_vector_get(root,0)) + M_PI_2)/2 ,gsl_vector_get(root,1),speed);
     
     // Garbage collection
     gsl_multiroot_fsolver_free (s);
-    
-    l.theta = mod(l.theta, 2*M_PI);
-    if (l.theta > M_PI)
-    {
-        throw ComputerException(ComputerException::NEGATIVETHETA);
-    }
-    if (l.theta > M_PI_2)
-    {
-        l.theta = M_PI - l.theta;
-        l.phi += M_PI;
-    }
+
+    // Modulate phi
     l.phi = mod(l.phi, 2*M_PI);
     
     return l;
