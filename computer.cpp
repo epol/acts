@@ -255,20 +255,13 @@ Launch Computer::calculate_launch_params(Target target, double speed)
     const double eps2 = 1e-2;
     while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps*d)==GSL_CONTINUE) )
     {
-        int status = gsl_multiroot_fsolver_iterate(s);
-        if (status)
-        {
-            throw ComputerException(ComputerException::SOLVERERROR);
-        }
+        gsl_multiroot_fsolver_iterate(s);
         ++iteration_count;
     }
     
-    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps*d)!=GSL_SUCCESS)
+    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps2*d)!=GSL_SUCCESS)
     {
-        if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps2*d)!=GSL_SUCCESS)
-        {
-            throw ComputerException(ComputerException::LOWPOWER);
-        }
+        throw ComputerException(ComputerException::LOWPOWER);
     }
     
     // Get the found root
