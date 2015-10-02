@@ -211,62 +211,85 @@ int equation (const gsl_vector * x, void * param, gsl_vector * f)
 
 Launch Computer::calculate_launch_params(const Target target, const double speed)
 {
-    // Initial point for zerofinder
-    gsl_vector * l0 = gsl_vector_alloc(2);
-    double d = hypot(target.x,target.y);
+    // Initial point for zerofinder using balistic without friction
+    double d = target.distance();
     double gd = simpleSim.get_gravity() * d;
     if (speed*speed < gd )
     {
         throw ComputerException(ComputerException::LOWPOWER);
     }
     double theta = .5*asin(gd/(speed*speed));
-    gsl_vector_set(l0,0,tan( 2*theta - M_PI_2)); // set theta
-    gsl_vector_set(l0,1,atan2(target.y,target.x)); // set phi
+    double phi = target.phi();
     
-    // Initialize a solver
-    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; // https://www.gnu.org/software/gsl/manual/html_node/Algorithms-without-Derivatives.html#Algorithms-without-Derivatives
-    gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc (T, 2);
-    if (s == nullptr)
-    {
-        throw ComputerException(ComputerException::SOLVERINIT);
-    }
-    // construct the equation
-    gsl_multiroot_function F;
-    F.f = &equation;
-    F.n = 2;
+    // Read the friction values
+    //this->update_values();
     this->simpleSim.set_friction(this->frictionC, this->frictionA);
-    EquationParam param = EquationParam( &simpleSim, speed, target);
-    F.params = & param;
-    // Set the solver
-    gsl_multiroot_fsolver_set(s,&F,l0);   // the value of x0 (the initial point) is copied
-    // Garbage collection
-    gsl_vector_free(l0);
-    // Begin iteration
+    
+    // Error constants
+    double eps = 1e-5;
+    double eps2 = 1e-2;
+    double epsd = eps*target.distance();
+    double error = 0; 
+    
+    // Finite differences increments
+    double htr = 5e-3;
+    double hp = 1e-5;
+    double maxdthetar = 5e-1;
+    
     int iteration_count = 0;
-    const double eps = 1e-3;
-    const double eps2 = 1e-2;
-    while ((iteration_count < 100) && (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps*d)==GSL_CONTINUE) )
+    do
     {
-        gsl_multiroot_fsolver_iterate(s);
+        // Try current parameters
+        Target currentTarget = this->simulate(Launch(theta,phi,speed)).target;
+        Target diffTarget = currentTarget - target;
+        error = diffTarget.distance();
+        
+        // Use finite difference to approximante the Jacobian
+        double ht = htr*theta;
+        Target targetTP = this->simulate(Launch(theta+ht,phi,speed)).target;
+        Target targetTM = this->simulate(Launch(theta-ht,phi,speed)).target;
+        
+        Target targetPP = this->simulate(Launch(theta,phi+hp,speed)).target;
+        Target targetPM = this->simulate(Launch(theta,phi-hp,speed)).target;
+
+        
+        double J11 = (targetTP.x - targetTM.x)/(2*ht);
+        double J12 = (targetPP.x - targetPM.x)/(2*hp);
+        double J21 = (targetTP.y - targetTM.y)/(2*ht);
+        double J22 = (targetPP.y - targetPM.y)/(2*hp);
+        
+        // Invert the Jacobian
+        double den = 1/(J11*J22-J12*J21);
+        double K11 = den*J22;
+        double K12 = -den*J12;
+        double K21 = -den*J21;
+        double K22 = den*J11;
+        
+        // Prevent the method from choosing too large increments for theta
+        double maxdtheta = maxdthetar*theta;
+        double deltatheta = ((K11*diffTarget.x + K12*diffTarget.y));
+        if (fabs(deltatheta) > maxdtheta)
+        {
+            deltatheta = (deltatheta/fabs(deltatheta))*maxdtheta;  // aka sig(deltatheta)*maxdtheta
+        }
+        // Finally update the parameters with Netwon
+        theta = theta - deltatheta;
+        phi = phi - (K21*diffTarget.x + K22*diffTarget.y);
+        
         ++iteration_count;
     }
+    while ((iteration_count < 1000) && (error > epsd));
     
-    if (gsl_multiroot_test_residual(gsl_multiroot_fsolver_f(s),eps2*d)!=GSL_SUCCESS)
+    if (error > eps2*d  )
     {
+        // We hit too far from the target, maybe we haven't enough power? TODO: maybe some better condition?
         throw ComputerException(ComputerException::LOWPOWER);
     }
     
-    // Get the found root
-    gsl_vector * root = gsl_multiroot_fsolver_root(s);
-    Launch l((atan(gsl_vector_get(root,0)) + M_PI_2)/2 ,gsl_vector_get(root,1),speed);
+    // Sometimes phi is out of [0,2pi]
+    phi = mod(phi,2*M_PI);
     
-    // Garbage collection
-    gsl_multiroot_fsolver_free (s);
-
-    // Modulate phi
-    l.phi = mod(l.phi, 2*M_PI);
-    
-    return l;
+    return Launch(theta,phi,speed);
 }
 
 
