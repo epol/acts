@@ -68,9 +68,10 @@ int main(int argc, char** argv)
         cout << "Expected event:  " << Event(l, t, 0) << endl;
         
         random_device rd;
-        WorldSimulator w(0.02, .5, 0, 45, rd());
+        WorldSimulator w(0.02, 2e-2, 0, 45,rd());
         w.set_friction_sigmas(0, 0);
         Event e = w.simulate(l);
+        cout << "Boia event:      " << c.simulate(l) << endl;
         cout << "Real event:      " << e << endl;
         
         c.add_event(e);

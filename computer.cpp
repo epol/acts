@@ -40,7 +40,7 @@ using namespace std;
 Vec3D SimpleSimulator::calculate_friction(const Vec3D position, const Vec3D velocity)
 // Calculate the acceleration due to friction at a given altitude and velocity
 {
-    double friction_coeff = this->frictionC * exp(-this->frictionA * position.z);
+    double friction_coeff = this->frictionC * (1 -this->frictionA * position.z);
     return -friction_coeff * velocity;
 }
 
@@ -225,6 +225,20 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     //this->update_values();
     this->simpleSim.set_friction(this->frictionC, this->frictionA);
     
+    double bestdiff = d;
+    double besttheta = theta;
+    while (theta < M_PI_2)
+    {
+        Target currentTarget = this->simulate(Launch(theta,phi,speed)).target;
+        if ((currentTarget - target).distance() < bestdiff)
+        {
+            bestdiff = (currentTarget - target).distance();
+            besttheta = theta;
+        }
+        theta *= 1.01;
+    }
+    theta = besttheta;
+    
     // Error constants
     double eps = 1e-5;
     double eps2 = 1e-2;
@@ -232,7 +246,7 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     double error = 0; 
     
     // Finite differences increments
-    double htr = 5e-3;
+    double htr = 1e-3;
     double hp = 1e-5;
     double maxdthetar = 5e-1;
     
@@ -240,7 +254,8 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     do
     {
         // Try current parameters
-        Target currentTarget = this->simulate(Launch(theta,phi,speed)).target;
+        Event e = this->simulate(Launch(theta,phi,speed));
+        Target currentTarget = e.target;
         Target diffTarget = currentTarget - target;
         error = diffTarget.distance();
         
@@ -264,6 +279,14 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
         double K12 = -den*J12;
         double K21 = -den*J21;
         double K22 = den*J11;
+        
+        /* in case of debug
+        cout << J11 << " " << J12 << endl;
+        cout << J21 << " " << J22 << endl;
+
+        cout << K11 << " " << K12 << endl;
+        cout << K21 << " " << K22 << endl;
+        */
         
         // Prevent the method from choosing too large increments for theta
         double maxdtheta = maxdthetar*theta;
