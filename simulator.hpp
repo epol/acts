@@ -44,42 +44,42 @@ protected:
     const double modOmega=1./24/60/60;
     Vec3D omega=Vec3D(0,0,modOmega);
     
-    inline Simulator(double dtime, double frictionC, double frictionA): dtime(dtime), frictionC(frictionC), frictionA(frictionA) {}
+    inline Simulator(const double dtime, const double frictionC, const double frictionA): dtime(dtime), frictionC(frictionC), frictionA(frictionA) {}
     
-    inline Simulator(double dtime, double frictionC, double frictionA, double latitude) : Simulator(dtime, frictionC, frictionA)
+    inline Simulator(const double dtime, const double frictionC, const double frictionA, const double latitude) : Simulator(dtime, frictionC, frictionA)
     {
         this->set_latitude(latitude);
     }
     
-    virtual Vec3D calculate_friction(Vec3D, Vec3D)
+    virtual Vec3D calculate_friction(const Vec3D, const Vec3D) const
     // Calculate the acceleration due to friction at a given position and velocity
     {
         return Vec3D(0, 0, 0);
     }
 
-    virtual Vec3D calculate_nonfriction(Vec3D position, Vec3D velocity);
+    virtual Vec3D calculate_nonfriction(const Vec3D position, const Vec3D velocity) const;
     // Calculate all the non-friction accelerations (gravity & non-inertial)
 
 public:
-    inline void set_latitude(double latitude)
+    inline void set_latitude(const double latitude)
     // Wants latitude in degrees, stores it in radians
     {
         this->latitude = latitude * M_PI/180;
-        this->omega = modOmega * Vec3D(0, cos(this->latitude), sin(this->latitude));
+        this->omega = this->modOmega * Vec3D(0, cos(this->latitude), sin(this->latitude));
     }
     
-    inline void set_friction(double frictionC, double frictionA)
+    inline void set_friction(const double frictionC, const double frictionA)
     {
         this->frictionC = frictionC;
         this->frictionA = frictionA;
     }
     
-    inline double get_gravity()
+    inline double get_gravity() const
     {
         return this->gravity;
     }
     
-    Event simulate(Launch launch);
+    Event simulate(const Launch launch) const;
 };
 
 

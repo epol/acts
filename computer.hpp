@@ -35,11 +35,11 @@
 class SimpleSimulator : public Simulator
 {
 private:
-    virtual Vec3D calculate_friction(Vec3D, Vec3D);
+    virtual Vec3D calculate_friction(const Vec3D, const Vec3D);
     using Simulator::Simulator;  // inherit constructors
     
 public:
-    inline SimpleSimulator(double dtime, double frictionC, double frictionA, double latitude):
+    inline SimpleSimulator(const double dtime, const double frictionC, const double frictionA, const double latitude):
         Simulator(dtime, frictionC, frictionA, latitude) {}
     
 };
@@ -53,7 +53,7 @@ private:
     int first = 0;
 
 public:
-    EventMemory(int maxsize) : maxsize(maxsize), first(maxsize)
+    EventMemory(const int maxsize) : maxsize(maxsize), first(maxsize)
     {
         this->memory = new Event[this->maxsize];
     }
@@ -62,9 +62,9 @@ public:
         delete[] this->memory;
     }
     
-    void add(Event e);
+    void add(const Event e);
     Event * get();
-    inline int size()
+    inline int size() const
     {
         return this->used;
     }
@@ -113,26 +113,26 @@ private:
     
 public:
     
-    Computer(double latitude, double frictionC=0, double frictionA=0, int memorysize=10) :
+    Computer(const double latitude, const double frictionC=0, const double frictionA=0, const int memorysize=10) :
         simpleSim(0.02, frictionC, frictionA, latitude),
         memory(memorysize),
         frictionC(frictionC),
         frictionA(frictionA) {}
     
-    Launch calculate_launch_params(Target target, double speed);
+    Launch calculate_launch_params(const Target target, const double speed);
     
-    inline void add_event(Event event)
+    inline void add_event(const Event event)
     {
         this->updatedFriction = false;
         this->memory.add(event);
     }
     void update_values();
     
-    inline void set_simpleSim_friction(double frictionC, double frictionA)
+    inline void set_simpleSim_friction(const double frictionC, const double frictionA)
     {
         this->simpleSim.set_friction(frictionC, frictionA);
     }
-    Event simulate(Launch launch)
+    Event simulate(Launch launch) const
     {
         return this->simpleSim.simulate(launch);
     }
@@ -151,7 +151,7 @@ public:
 private:
     enum errcode type;
 public:
-    ComputerException( enum errcode e ) : type(e) {};
+    ComputerException(const enum errcode e): type(e) {};
     const char *show_reason() const
     {
         switch (this->type)

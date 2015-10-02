@@ -37,16 +37,16 @@
 
 using namespace std;
 
-Vec3D SimpleSimulator::calculate_friction(Vec3D position, Vec3D velocity)
+Vec3D SimpleSimulator::calculate_friction(const Vec3D position, const Vec3D velocity)
 // Calculate the acceleration due to friction at a given altitude and velocity
 {
-    double friction_coeff = frictionC * exp(-frictionA * position.z);
+    double friction_coeff = this->frictionC * exp(-this->frictionA * position.z);
     return -friction_coeff * velocity;
 }
 
 // -----------------
 
-void EventMemory::add(Event e)
+void EventMemory::add(const Event e)
 {
     if (this->used < this->maxsize)
     {
@@ -209,7 +209,7 @@ int equation (const gsl_vector * x, void * param, gsl_vector * f)
 }
 
 
-Launch Computer::calculate_launch_params(Target target, double speed)
+Launch Computer::calculate_launch_params(const Target target, const double speed)
 {
     // Initial point for zerofinder
     gsl_vector * l0 = gsl_vector_alloc(2);

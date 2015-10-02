@@ -72,12 +72,12 @@ std::ostream& operator<< (std::ostream& ostr, const Launch l)
 
 // -----------------
 
-double Target::distance()
+double Target::distance() const
 {
     return hypot(this->x, this->y);
 }
 
-double Target::phi()
+double Target::phi() const
 {
     return atan2(this->y, this->x);
 }

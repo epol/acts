@@ -28,16 +28,16 @@
 #include "simulator.hpp"
 #include "utilities.hpp"
 
-Vec3D Simulator::calculate_nonfriction(Vec3D position, Vec3D velocity)
+Vec3D Simulator::calculate_nonfriction(const Vec3D position, const Vec3D velocity) const
 // Calculate all the non-friction accelerations (gravity & non-inertial)
 {
     Vec3D vecGravity = Vec3D(0, 0, -gravity);
-    Vec3D vecCoriolis = -2 * omega ^ velocity;
-    Vec3D vecCentrifugal = - omega ^ (omega ^ position);
+    Vec3D vecCoriolis = -2 * this->omega ^ velocity;
+    Vec3D vecCentrifugal = - this->omega ^ (this->omega ^ position);
     return vecGravity + vecCoriolis + vecCentrifugal;
 }
 
-Event Simulator::simulate (Launch launch)
+Event Simulator::simulate (const Launch launch) const
 {
     Vec3D position(0,0,0);
     Vec3D velocity = launch.speed * Vec3D(
@@ -47,7 +47,7 @@ Event Simulator::simulate (Launch launch)
             );
     double t = 0;
     Vec3D prev_position(0, 0, 0);
-    do 
+    do
     {
         prev_position = position;
         Vec3D acceleration = this->calculate_friction(position,velocity) + this->calculate_nonfriction(position,velocity);

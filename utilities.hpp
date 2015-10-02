@@ -37,7 +37,7 @@ public:
     double y;
     double z;
     
-    inline Vec3D(double x, double y, double z) : x(x), y(y), z(z) {}
+    inline Vec3D(const double x, const double y, const double z) : x(x), y(y), z(z) {}
     inline Vec3D() : x(0), y(0), z(0) {}
 
     friend Vec3D operator* (const double lambda, const Vec3D vec);
@@ -61,7 +61,7 @@ public:
     double phi;
     double speed;
     
-    inline Launch(double theta, double phi, double speed) : 
+    inline Launch(const double theta, const double phi, const double speed) : 
         theta(theta), phi(mod(phi,2*M_PI)), speed(speed) { }
     inline Launch() {}
     
@@ -75,11 +75,11 @@ public:
     double x;
     double y;
     
-    inline Target(double x, double y) : x(x), y(y) {}
+    inline Target(const double x, const double y) : x(x), y(y) {}
     inline Target() {}
     
-    double distance();
-    double phi();
+    double distance() const;
+    double phi() const;
 
     friend Target operator* (const double lambda, const Target trg);
     friend Target operator+ (const Target a, const Target b);
@@ -96,7 +96,7 @@ public:
     Target target;
     double time;
     
-    inline Event(Launch launch, Target target, double time=0) :
+    inline Event(const Launch launch, const Target target, const double time=0) :
         launch(launch), target(target), time(time) {}
     inline Event() {}
     

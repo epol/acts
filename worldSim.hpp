@@ -41,7 +41,7 @@ private:
     using Simulator::Simulator;  // inherit constructors
     
 protected:
-    virtual Vec3D calculate_friction(Vec3D, Vec3D);
+    virtual Vec3D calculate_friction(const Vec3D, const Vec3D);
 
 public:
     
