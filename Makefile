@@ -26,6 +26,8 @@
 CXX=g++ -std=gnu++11
 CPPFLAGS=-g -Og -Wall -Wextra -pedantic -lgsl -lgslcblas -lm
 OBJS=main.o worldSim.o computer.o simulator.o utilities.o
+SDLFLAGS=-D_REENTRANT -I/usr/include/SDL2 -lSDL2 -lpthread
+
 
 build: $(OBJS)
 	$(CXX) $(OBJS) $(CPPFLAGS) -o main
@@ -44,6 +46,15 @@ simulator.o: simulator.cpp utilities.hpp simulator.hpp
 
 utilities.o: utilities.cpp utilities.hpp
 	$(CXX) -c utilities.cpp -o utilities.o $(CPPFLAGS)
+
+EmptyApp.o: EmptyApp.hpp
+	$(CXX) -c EmptyApp.cpp -o EmptyApp.o $(CPPFLAGS) $(SDLFLAGS)
+
+sdl.o: sdl.cpp EmptyApp.hpp EmptyApp.cpp utilities.hpp worldSim.hpp computer.hpp
+	$(CXX) -c sdl.cpp -o sdl.o $(CPPFLAGS) $(SDLFLAGS)
+
+sdl: $(OBJS) sdl.o EmptyApp.o
+	$(CXX) utilities.o computer.o worldSim.o simulator.o EmptyApp.o sdl.o $(CPPFLAGS) $(SDLFLAGS) -o sdl
 
 clean:
 	-rm $(OBJS) main
