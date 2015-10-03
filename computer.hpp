@@ -84,7 +84,7 @@ private:
     double startingPoint[npars] = {0};
     
     double accuracy = 1e-5;
-    double step = 1;
+    double step = 0.01;
     double maxiter = 100;
     
     int status = -1;
@@ -139,7 +139,7 @@ public:
     {
         this->simpleSim.set_friction(frictionC, frictionA);
     }
-    Event simulate(Launch launch) const
+    Event simulate(Launch launch)
     {
         return this->simpleSim.simulate(launch);
     }

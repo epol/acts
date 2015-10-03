@@ -37,7 +37,7 @@ Vec3D Simulator::calculate_nonfriction(const Vec3D position, const Vec3D velocit
     return vecGravity + vecCoriolis + vecCentrifugal;
 }
 
-Event Simulator::simulate (const Launch launch) const
+Event Simulator::simulate (const Launch launch)
 {
     Vec3D position(0,0,0);
     Vec3D velocity = launch.speed * Vec3D(

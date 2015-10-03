@@ -49,7 +49,7 @@ protected:
         this->set_latitude(latitude);
     }
     
-    virtual Vec3D calculate_friction(const Vec3D, const Vec3D) const
+    virtual Vec3D calculate_friction(const Vec3D, const Vec3D)
     // Calculate the acceleration due to friction at a given position and velocity
     {
         return Vec3D(0, 0, 0);
@@ -77,7 +77,7 @@ public:
         return this->gravity;
     }
     
-    Event simulate(const Launch launch) const;
+    Event simulate(const Launch launch);
 };
 
 
