@@ -36,6 +36,6 @@ Vec3D WorldSimulator::calculate_friction(const Vec3D position, const Vec3D veloc
     normal_distribution<double> gauss(0, 1);
     double realC = max(0., this->frictionC + this->frictionCsigma * gauss(g));
     double realA = max(0., this->frictionA + this->frictionAsigma * gauss(g));
-    double friction_coeff = realC *(1 -realA * position.z);
+    double friction_coeff = realC * (1 - abs(realA) * position.z);
     return -friction_coeff * velocity;
 }

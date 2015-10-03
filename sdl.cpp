@@ -107,8 +107,10 @@ public:
             border_e(-sizex),
             border_w(sizex),
             computer(LATITUDE,0,0),
-            w(1e-4, 0.02, 0, LATITUDE)
-            {}
+            w(1e-4, 0.05, 0, LATITUDE)
+            {
+                w.set_friction_sigmas(0.05, 0);
+            }
     ~TargetApp()
     {
         this->history.clear();

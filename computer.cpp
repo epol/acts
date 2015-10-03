@@ -39,7 +39,7 @@ using namespace std;
 Vec3D SimpleSimulator::calculate_friction(const Vec3D position, const Vec3D velocity)
 // Calculate the acceleration due to friction at a given altitude and velocity
 {
-    double friction_coeff = this->frictionC * (1 -this->frictionA * position.z);
+    double friction_coeff = this->frictionC * (1 - abs(this->frictionA) * position.z);
     return -friction_coeff * velocity;
 }
 
@@ -165,7 +165,7 @@ int Minimizer::minimize(Computer* comp)
 
 void Computer::update_values()
 {
-    if (this->memory.size() > 0)
+    if (this->updatedFriction == false)
     {
         minimizer.set_starting_point(frictionC, frictionA);
         int status = minimizer.minimize(this);
@@ -175,7 +175,7 @@ void Computer::update_values()
         cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
     
         this->frictionC = minimizer.finalPoint[0];
-        this->frictionA = minimizer.finalPoint[1];
+        this->frictionA = abs(minimizer.finalPoint[1]);
     }
     this->updatedFriction = true;
 }
@@ -264,7 +264,7 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     }
     while ((iteration_count < 1000) && (error > epsd));
     
-    if (error > eps2*d  )
+    if ((error > eps2*d) || !isfinite(theta) || !isfinite(phi))
     {
         // We hit too far from the target, maybe we haven't enough power? TODO: maybe some better condition?
         throw ComputerException(ComputerException::LOWPOWER);
