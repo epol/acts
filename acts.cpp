@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <utility>
 #include <list>
 #include <random>
 #include <string>
@@ -87,6 +88,8 @@ private:
                     cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
                     return;
                 }
+                cout << "Current friction coeffs: " << this->computer.get_friction().first;
+                cout << " - "                       << this->computer.get_friction().second << endl;
                 cout << "Expected event:  " << Event(l, this->desired, -1) << endl;
                 w.set_seed(rd());
                 Event e = w.simulate(l);

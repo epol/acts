@@ -28,6 +28,7 @@
 #define _COMPUTER_HPP
 
 
+#include <utility>
 #include "utilities.hpp"
 #include "simulator.hpp"
 
@@ -133,6 +134,11 @@ public:
     {
         this->updatedFriction = false;
         this->memory.add(event);
+    }
+    
+    inline std::pair<double, double> get_friction()
+    {
+        return std::pair<double, double>(this->frictionC, this->frictionA);
     }
     
     inline void set_simpleSim_friction(const double frictionC, const double frictionA)
