@@ -84,9 +84,10 @@ private:
                     cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
                     return;
                 }
+                cout << "Expected event:  " << Event(l, this->desired, -1) << endl;
                 w.set_seed(rd());
                 Event e = w.simulate(l);
-                cout << e << endl;
+                cout << "Real event:      " << e << endl << endl;
                 this->add_event(e);
                 this->computer.add_event(e);
             }

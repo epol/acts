@@ -28,7 +28,7 @@
 #include <cstdlib>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multimin.h>
-#include <iostream> // FIXME: we are not using it for debug
+// #include <iostream> // only used for debug
 
 #include "computer.hpp"
 #include "utilities.hpp"
@@ -168,11 +168,12 @@ void Computer::update_values()
     if (this->updatedFriction == false)
     {
         minimizer.set_starting_point(frictionC, frictionA);
-        int status = minimizer.minimize(this);
-        // FIXME DEBUG
-        if (status!=0) cout << "Fit failed with status: " << status << endl;
-        else cout << "Fit successful" << endl;
-        cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
+        minimizer.minimize(this);
+        
+        // DEBUG
+        // if (status!=0) cout << "Fit failed with status: " << status << endl;
+        // else cout << "Fit successful" << endl;
+        // cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
     
         this->frictionC = minimizer.finalPoint[0];
         this->frictionA = abs(minimizer.finalPoint[1]);
