@@ -38,8 +38,6 @@
 
 #include "EmptyApp.hpp"
 
-#define LATITUDE 45
-
 using namespace std;
 
 class TargetApp : public EmptyApp
@@ -74,6 +72,11 @@ private:
             fireOrder = false;
             if (isfinite(desired.x) && isfinite(desired.y))
             {
+                if (this->desired.distance() < 10)
+                {
+                    cout << "You asked for a launch at " << this->desired.distance() << "m, are you trying to kill us?" << endl;
+                    return;
+                }
                 Launch l;
                 try
                 {
@@ -100,15 +103,15 @@ private:
 
 
 public:
-    TargetApp(int width, int height, double sizex, double sizey,std::string windowName="ACTS"): 
-            EmptyApp(width,height, windowName), 
+    TargetApp(const int width, const int height, const double sizex, const double sizey, const double latitude=45, string windowName="ACTS"): 
+            EmptyApp(width, height, windowName),
             desired(Target(NAN,NAN)), 
             border_s(-sizey),
             border_n(sizey),
             border_e(-sizex),
             border_w(sizex),
-            computer(LATITUDE,0,0),
-            w(1e-4, 0.05, 0, LATITUDE)
+            computer(latitude,0,0),
+            w(1e-4, 0.05, 0, latitude)
             {
                 w.set_friction_sigmas(0.05, 0);
             }
@@ -129,8 +132,8 @@ public:
 
     virtual void on_render()
     {
-        // Create a black backgrund
-        SDL_SetRenderDrawColor( this->renderer, 0x00,0x00,0x00,0xFF);   // black                                                                                                                                    
+        // Create a dark blue backgrund
+        SDL_SetRenderDrawColor( this->renderer, 0x00,0x00,0x30,0xFF);   // dark blue
         SDL_RenderClear( this->renderer );
         
         SDL_SetRenderDrawColor( this->renderer, 0x00, 0xFF, 0x00, 0xFF ); // RGB alpha
@@ -204,16 +207,15 @@ void TargetApp::on_event()
 
 int main (int argc, char** argv)
 {
-    if (argc < 2) {
-        cout << "You need to provide the screen size" << endl;
+    if (argc < 3) {
+        cout << "You need to provide the screen size and the latitude (degrees)" << endl;
         return 1;
     }
     
-    TargetApp app(600,600,atof(argv[1]),atof(argv[1]));
+    TargetApp app(600, 600, atof(argv[1]), atof(argv[1]), atof(argv[2]));
     app.run();
 
     
     return 0;
 }
-
 

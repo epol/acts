@@ -41,6 +41,7 @@ protected:
     const double gravity=9.8;
     const double modOmega=1./24/60/60;
     Vec3D omega=Vec3D(0,0,modOmega);
+    double target_elevation = 0;
     
     inline Simulator(const double dtime, const double frictionC, const double frictionA): dtime(dtime), frictionC(frictionC), frictionA(frictionA) {}
     

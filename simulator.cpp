@@ -55,7 +55,7 @@ Event Simulator::simulate (const Launch launch)
         velocity = velocity + this->dtime * acceleration;
         t += this->dtime;
     }
-    while (position.z > 0);
+    while (position.z > target_elevation);
     
     Target trg = Target(0.5 * (position.x + prev_position.x), 0.5 * (position.y + prev_position.y));
     
