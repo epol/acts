@@ -222,7 +222,7 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     double phi = target.phi();
     
     // Update the simultor dtime
-    this->simpleSim.set_dtime(d*this->relativeDtime);
+    this->simpleSim.set_dtime(d*this->relativeDtime/speed);
     
     // Read the friction values
     //this->update_values();

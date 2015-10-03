@@ -119,7 +119,7 @@ private:
     
 public:
     
-    Computer(const double latitude, const double frictionC=0, const double frictionA=0, const int memorysize=10, const double relativeDtime=1e-6) :
+    Computer(const double latitude, const double frictionC=0, const double frictionA=0, const int memorysize=10, const double relativeDtime=1e-3) :
         simpleSim(0.02, frictionC, frictionA, latitude),
         memory(memorysize),
         relativeDtime(relativeDtime),
