@@ -32,10 +32,8 @@
 
 class Simulator
 {
-private:
-    double dtime;
-
 protected:
+    double dtime;
     double frictionC;
     double frictionA;
     

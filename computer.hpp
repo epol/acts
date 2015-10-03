@@ -42,6 +42,10 @@ public:
     inline SimpleSimulator(const double dtime, const double frictionC, const double frictionA, const double latitude):
         Simulator(dtime, frictionC, frictionA, latitude) {}
     
+    inline void set_dtime(const double dtime)
+    {
+        this->dtime = dtime;
+    }
 };
 
 class EventMemory
@@ -107,15 +111,18 @@ private:
     EventMemory memory;
     Minimizer minimizer;
     
+    double relativeDtime;
+    
     double frictionC;
     double frictionA;
     bool updatedFriction = true;
     
 public:
     
-    Computer(const double latitude, const double frictionC=0, const double frictionA=0, const int memorysize=10) :
+    Computer(const double latitude, const double frictionC=0, const double frictionA=0, const int memorysize=10, const double relativeDtime=1e-6) :
         simpleSim(0.02, frictionC, frictionA, latitude),
         memory(memorysize),
+        relativeDtime(relativeDtime),
         frictionC(frictionC),
         frictionA(frictionA) {}
     
