@@ -34,8 +34,8 @@ class Simulator
 {
 protected:
     double dtime;
-    double frictionC;
-    double frictionA;
+    double friction1;
+    double friction2;
     
     double latitude=90;
     const double gravity=9.8;
@@ -43,14 +43,14 @@ protected:
     Vec3D omega=Vec3D(0,0,modOmega);
     double target_elevation = 0;
     
-    inline Simulator(const double dtime, const double frictionC, const double frictionA): dtime(dtime), frictionC(frictionC), frictionA(frictionA) {}
+    inline Simulator(const double dtime, const double friction1, const double friction2): dtime(dtime), friction1(friction1), friction2(friction2) {}
     
-    inline Simulator(const double dtime, const double frictionC, const double frictionA, const double latitude) : Simulator(dtime, frictionC, frictionA)
+    inline Simulator(const double dtime, const double friction1, const double friction2, const double latitude) : Simulator(dtime, friction1, friction2)
     {
         this->set_latitude(latitude);
     }
     
-    virtual Vec3D calculate_friction(const Vec3D, const Vec3D)
+    virtual Vec3D calculate_friction(const Vec3D)
     // Calculate the acceleration due to friction at a given position and velocity
     {
         return Vec3D(0, 0, 0);
@@ -67,10 +67,10 @@ public:
         this->omega = this->modOmega * Vec3D(0, cos(this->latitude), sin(this->latitude));
     }
     
-    inline void set_friction(const double frictionC, const double frictionA)
+    inline void set_friction(const double friction1, const double friction2)
     {
-        this->frictionC = frictionC;
-        this->frictionA = frictionA;
+        this->friction1 = friction1;
+        this->friction2 = friction2;
     }
     
     inline double get_gravity() const

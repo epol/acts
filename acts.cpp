@@ -75,9 +75,11 @@ private:
             {
                 if (this->desired.distance() < 10)
                 {
-                    cout << "You asked for a launch at " << this->desired.distance() << "m, are you trying to kill us?" << endl;
+                    cout << "You asked for a launch at " << this->desired.distance() << "m, are you trying to kill us?" << endl << endl;
                     return;
                 }
+                cout << "Current friction coeffs: " << this->computer.get_friction().first;
+                cout << " - "                       << this->computer.get_friction().second << endl;
                 Launch l;
                 try
                 {
@@ -85,11 +87,10 @@ private:
                 }
                 catch (ComputerException e)
                 {
-                    cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
+                    cout << "Desired target: " << this->desired << endl;
+                    cout << "Error calculating the launching parameters: " << e.show_reason() << endl << endl;
                     return;
                 }
-                cout << "Current friction coeffs: " << this->computer.get_friction().first;
-                cout << " - "                       << this->computer.get_friction().second << endl;
                 cout << "Expected event:  " << Event(l, this->desired, -1) << endl;
                 w.set_seed(rd());
                 Event e = w.simulate(l);
@@ -114,9 +115,9 @@ public:
             border_e(-sizex),
             border_w(sizex),
             computer(latitude,0,0),
-            w(1e-4, 0.05, 0, latitude)
+            w(1e-4, 0.02, 4e-6, latitude)
             {
-                w.set_friction_sigmas(0.05, 0);
+                w.set_friction_sigmas(1, 1);
             }
     ~TargetApp()
     {

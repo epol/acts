@@ -35,12 +35,12 @@
 class SimpleSimulator : public Simulator
 {
 private:
-    virtual Vec3D calculate_friction(const Vec3D, const Vec3D);
+    virtual Vec3D calculate_friction(const Vec3D);
     using Simulator::Simulator;  // inherit constructors
     
 public:
-    inline SimpleSimulator(const double dtime, const double frictionC, const double frictionA, const double latitude):
-        Simulator(dtime, frictionC, frictionA, latitude) {}
+    inline SimpleSimulator(const double dtime, const double friction1, const double friction2, const double latitude):
+        Simulator(dtime, friction1, friction2, latitude) {}
     
     inline void set_dtime(const double dtime)
     {
@@ -113,20 +113,20 @@ private:
     
     double relativeDtime;
     
-    double frictionC;
-    double frictionA;
+    double friction1;
+    double friction2;
     bool updatedFriction = true;
     
     void update_values();
     
 public:
     
-    Computer(const double latitude, const double frictionC=0, const double frictionA=0, const int memorysize=10, const double relativeDtime=1e-3) :
-        simpleSim(0.02, frictionC, frictionA, latitude),
+    Computer(const double latitude, const double friction1=0, const double friction2=0, const int memorysize=10, const double relativeDtime=1e-3) :
+        simpleSim(0.02, friction1, friction2, latitude),
         memory(memorysize),
         relativeDtime(relativeDtime),
-        frictionC(frictionC),
-        frictionA(frictionA) {}
+        friction1(friction1),
+        friction2(friction2) {}
     
     Launch calculate_launch_params(const Target target, const double speed);
     
@@ -138,12 +138,12 @@ public:
     
     inline std::pair<double, double> get_friction()
     {
-        return std::pair<double, double>(this->frictionC, this->frictionA);
+        return std::pair<double, double>(this->friction1, this->friction2);
     }
     
-    inline void set_simpleSim_friction(const double frictionC, const double frictionA)
+    inline void set_simpleSim_friction(const double friction1, const double friction2)
     {
-        this->simpleSim.set_friction(frictionC, frictionA);
+        this->simpleSim.set_friction(friction1, friction2);
     }
     Event simulate(Launch launch)
     {

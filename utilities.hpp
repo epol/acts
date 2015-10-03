@@ -46,6 +46,11 @@ public:
     friend Vec3D operator- (const Vec3D a, const Vec3D b);
     friend Vec3D operator^ (const Vec3D a, const Vec3D b);
     
+    inline double norm() const
+    {
+        return sqrt(this->x*this->x + this->z*this->z + this->z*this->z);
+    }
+    
     friend std::ostream& operator<< (std::ostream& ostr, const Vec3D a);
 };
 

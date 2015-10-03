@@ -36,10 +36,10 @@
 
 using namespace std;
 
-Vec3D SimpleSimulator::calculate_friction(const Vec3D position, const Vec3D velocity)
+Vec3D SimpleSimulator::calculate_friction(const Vec3D velocity)
 // Calculate the acceleration due to friction at a given altitude and velocity
 {
-    double friction_coeff = this->frictionC * (1 - abs(this->frictionA) * position.z);
+    double friction_coeff =  this->friction1 + this->friction2 * velocity.norm();
     return -friction_coeff * velocity;
 }
 
@@ -167,7 +167,7 @@ void Computer::update_values()
 {
     if (this->updatedFriction == false)
     {
-        minimizer.set_starting_point(frictionC, frictionA);
+        minimizer.set_starting_point(friction1, friction2);
         minimizer.minimize(this);
         
         // DEBUG
@@ -175,8 +175,8 @@ void Computer::update_values()
         // else cout << "Fit successful" << endl;
         // cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
     
-        this->frictionC = minimizer.finalPoint[0];
-        this->frictionA = abs(minimizer.finalPoint[1]);
+        this->friction1 = max(0., minimizer.finalPoint[0]);
+        this->friction2 = max(0., minimizer.finalPoint[1]);
     }
     this->updatedFriction = true;
 }
@@ -199,7 +199,7 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     
     // Read the friction values
     this->update_values();
-    this->simpleSim.set_friction(this->frictionC, this->frictionA);
+    this->simpleSim.set_friction(this->friction1, this->friction2);
     
     // Error constants
     double eps = 1e-5;

@@ -33,35 +33,35 @@
 class WorldSimulator : public Simulator
 {
 private:
-    double frictionCsigma;
-    double frictionAsigma;
+    double friction1sigma;
+    double friction2sigma;
     
     std::default_random_engine g;
     
     using Simulator::Simulator;  // inherit constructors
     
 protected:
-    virtual Vec3D calculate_friction(const Vec3D, const Vec3D);
+    virtual Vec3D calculate_friction(const Vec3D);
 
 public:
-    WorldSimulator(const double dtime, const double frictionC, const double frictionA, const double latitude):
-        Simulator(dtime, frictionC, frictionA, latitude) {}
+    WorldSimulator(const double dtime, const double friction1, const double friction2, const double latitude):
+        Simulator(dtime, friction1, friction2, latitude) {}
     
     inline void set_seed(uint seed)
     {
         this->g = std::default_random_engine(seed);
     }
     
-    WorldSimulator(const double dtime, const double frictionC, const double frictionA, const double latitude, uint seed):
-        WorldSimulator(dtime, frictionC, frictionA, latitude)
+    WorldSimulator(const double dtime, const double friction1, const double friction2, const double latitude, uint seed):
+        WorldSimulator(dtime, friction1, friction2, latitude)
     {
         this->set_seed(seed);
     }
     
-    inline void set_friction_sigmas(double frictionCsigma, double frictionAsigma)
+    inline void set_friction_sigmas(double friction1sigma, double friction2sigma)
     {
-        this->frictionCsigma = frictionCsigma;
-        this->frictionAsigma = frictionAsigma;
+        this->friction1sigma = friction1sigma;
+        this->friction2sigma = friction2sigma;
     }
     
 };
