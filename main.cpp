@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     }
     
     Target t = Target(atof(argv[1]), atof(argv[2]));
-    if (t.distance() < 200)
+    if (t.distance() < 100)
     {
         cout << "Please don't throw so near" << endl;
         exit(1);
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     Computer c(45, 0, 0);
     Launch l;
     
-    for (int i=0; i<5; ++i)
+    for (int i=0; i<10; ++i)
     {
         cout << i+1 << "th launch" << endl;
         
@@ -66,12 +66,12 @@ int main(int argc, char** argv)
         }
         
         cout << "Expected event:  " << Event(l, t, 0) << endl;
+        cout << "Simulated event: " << c.simulate(l) << endl;
         
         random_device rd;
-        WorldSimulator w(0.02, 2e-2, 0, 45,rd());
+        WorldSimulator w(1e-4, 0.02, 0, 45, rd());
         w.set_friction_sigmas(0, 0);
         Event e = w.simulate(l);
-        cout << "Boia event:      " << c.simulate(l) << endl;
         cout << "Real event:      " << e << endl;
         
         c.add_event(e);
