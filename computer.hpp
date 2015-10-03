@@ -116,6 +116,8 @@ private:
     double frictionA;
     bool updatedFriction = true;
     
+    void update_values();
+    
 public:
     
     Computer(const double latitude, const double frictionC=0, const double frictionA=0, const int memorysize=10, const double relativeDtime=1e-3) :
@@ -132,7 +134,6 @@ public:
         this->updatedFriction = false;
         this->memory.add(event);
     }
-    void update_values();
     
     inline void set_simpleSim_friction(const double frictionC, const double frictionA)
     {
