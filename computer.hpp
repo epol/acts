@@ -28,7 +28,6 @@
 #define _COMPUTER_HPP
 
 
-#include <gsl/gsl_vector.h>
 #include "utilities.hpp"
 #include "simulator.hpp"
 

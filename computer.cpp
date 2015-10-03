@@ -26,7 +26,6 @@
  
 #include <cmath>
 #include <cstdlib>
-#include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multimin.h>
 #include <iostream> // FIXME: we are not using it for debug
@@ -179,36 +178,6 @@ void Computer::update_values()
 }
 
 
-// BEGIN: calculate_launch_params code
-
-class EquationParam
-// To be used as the equation parameters
-{
-public:
-    SimpleSimulator* s;
-    double speed;
-    Target target;
-    
-    EquationParam(SimpleSimulator* s, double speed, Target target) : s(s), speed(speed), target(target) {}
-};
-
-int equation (const gsl_vector * x, void * param, gsl_vector * f)
-{
-    const double theta = (atan(gsl_vector_get(x,0)) + M_PI_2)/2;
-    const double phi = gsl_vector_get(x,1);
-    EquationParam * eq_param = (EquationParam *) param;
-    SimpleSimulator * s = eq_param -> s;
-    double speed = eq_param -> speed;
-    Target target = eq_param -> target;
-    
-    Event e = s->simulate(Launch(theta,phi,speed));
-    gsl_vector_set(f,0,e.target.x - target.x);
-    gsl_vector_set(f,1,e.target.y - target.y);
-    
-    return GSL_SUCCESS;
-}
-
-
 Launch Computer::calculate_launch_params(const Target target, const double speed)
 {
     // Initial point for zerofinder using balistic without friction
@@ -304,5 +273,3 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     return Launch(theta,phi,speed);
 }
 
-
-// END: calculate_launch_params code
