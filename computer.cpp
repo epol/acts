@@ -228,20 +228,6 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     //this->update_values();
     this->simpleSim.set_friction(this->frictionC, this->frictionA);
     
-    double bestdiff = d;
-    double besttheta = theta;
-    while (theta < M_PI_2)
-    {
-        Target currentTarget = this->simulate(Launch(theta,phi,speed)).target;
-        if ((currentTarget - target).distance() < bestdiff)
-        {
-            bestdiff = (currentTarget - target).distance();
-            besttheta = theta;
-        }
-        theta *= 1.01;
-    }
-    theta = besttheta;
-    
     // Error constants
     double eps = 1e-5;
     double eps2 = 1e-2;
