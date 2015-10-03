@@ -25,15 +25,17 @@
 
 CXX=g++ -std=gnu++11
 CPPFLAGS=-g -Og -Wall -Wextra -pedantic -lgsl -lgslcblas -lm
-OBJS=main.o worldSim.o computer.o simulator.o utilities.o
+OBJS=utilities.o simulator.o worldSim.o computer.o
 SDLFLAGS=-D_REENTRANT -I/usr/include/SDL2 -lSDL2 -lpthread
 
 
-build: $(OBJS)
-	$(CXX) $(OBJS) $(CPPFLAGS) -o main
+build: test acts
 
-main.o: main.cpp utilities.hpp simulator.hpp computer.hpp worldSim.hpp
-	$(CXX) -c main.cpp -o main.o $(CPPFLAGS)
+utilities.o: utilities.cpp utilities.hpp
+	$(CXX) -c utilities.cpp -o utilities.o $(CPPFLAGS)
+
+simulator.o: simulator.cpp utilities.hpp simulator.hpp
+	$(CXX) -c simulator.cpp -o simulator.o $(CPPFLAGS)
 
 worldSim.o: worldSim.cpp utilities.hpp simulator.hpp worldSim.hpp
 	$(CXX) -c worldSim.cpp -o worldSim.o $(CPPFLAGS)
@@ -41,22 +43,22 @@ worldSim.o: worldSim.cpp utilities.hpp simulator.hpp worldSim.hpp
 computer.o: computer.cpp utilities.hpp simulator.hpp computer.hpp
 	$(CXX) -c computer.cpp -o computer.o $(CPPFLAGS)
 
-simulator.o: simulator.cpp utilities.hpp simulator.hpp
-	$(CXX) -c simulator.cpp -o simulator.o $(CPPFLAGS)
+test.o: test.cpp utilities.hpp simulator.hpp computer.hpp worldSim.hpp
+	$(CXX) -c test.cpp -o test.o $(CPPFLAGS)
 
-utilities.o: utilities.cpp utilities.hpp
-	$(CXX) -c utilities.cpp -o utilities.o $(CPPFLAGS)
+test: $(OBJS) test.o
+	$(CXX) $(OBJS) test.o $(CPPFLAGS) -o test
 
 EmptyApp.o: EmptyApp.hpp
 	$(CXX) -c EmptyApp.cpp -o EmptyApp.o $(CPPFLAGS) $(SDLFLAGS)
 
-sdl.o: sdl.cpp EmptyApp.hpp EmptyApp.cpp utilities.hpp worldSim.hpp computer.hpp
-	$(CXX) -c sdl.cpp -o sdl.o $(CPPFLAGS) $(SDLFLAGS)
+acts.o: acts.cpp EmptyApp.hpp EmptyApp.cpp utilities.hpp worldSim.hpp computer.hpp
+	$(CXX) -c acts.cpp -o acts.o $(CPPFLAGS) $(SDLFLAGS)
 
-sdl: $(OBJS) sdl.o EmptyApp.o
-	$(CXX) utilities.o computer.o worldSim.o simulator.o EmptyApp.o sdl.o $(CPPFLAGS) $(SDLFLAGS) -o sdl
+acts: $(OBJS) acts.o EmptyApp.o
+	$(CXX) $(OBJS) EmptyApp.o acts.o $(CPPFLAGS) $(SDLFLAGS) -o acts
 
 clean:
-	-rm $(OBJS) main
+	-rm -f $(OBJS) test.o test acts.o EmptyApp.o acts
 
 rebuild: clean build
