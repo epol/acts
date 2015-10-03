@@ -83,8 +83,8 @@ private:
     double startingPoint[npars] = {0};
     
     double accuracy = 1e-5;
-    double step = 0.01;
-    double maxiter = 100;
+    double step = 0.001;
+    double maxiter = 1000;
     
     int status = -1;
 

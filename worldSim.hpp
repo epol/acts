@@ -44,11 +44,18 @@ protected:
     virtual Vec3D calculate_friction(const Vec3D, const Vec3D);
 
 public:
+    WorldSimulator(const double dtime, const double frictionC, const double frictionA, const double latitude):
+        Simulator(dtime, frictionC, frictionA, latitude) {}
     
-    WorldSimulator(double dtime, double frictionC, double frictionA, double latitude, uint seed):
-        Simulator(dtime, frictionC, frictionA, latitude)
+    inline void set_seed(uint seed)
     {
         this->g = std::default_random_engine(seed);
+    }
+    
+    WorldSimulator(const double dtime, const double frictionC, const double frictionA, const double latitude, uint seed):
+        WorldSimulator(dtime, frictionC, frictionA, latitude)
+    {
+        this->set_seed(seed);
     }
     
     inline void set_friction_sigmas(double frictionCsigma, double frictionAsigma)

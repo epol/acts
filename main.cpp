@@ -75,7 +75,6 @@ int main(int argc, char** argv)
         cout << "Real event:      " << e << endl;
         
         c.add_event(e);
-        c.update_values();
         cout << endl;
     }
     

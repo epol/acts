@@ -165,16 +165,19 @@ int Minimizer::minimize(Computer* comp)
 
 void Computer::update_values()
 {
-    minimizer.set_starting_point(frictionC, frictionA);
-    int status = minimizer.minimize(this);
-    // FIXME DEBUG
-    if (status!=0) cout << "Fit failed with status: " << status << endl;
-    else cout << "Fit successful" << endl;
-    cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
+    if (this->memory.size() > 0)
+    {
+        minimizer.set_starting_point(frictionC, frictionA);
+        int status = minimizer.minimize(this);
+        // FIXME DEBUG
+        if (status!=0) cout << "Fit failed with status: " << status << endl;
+        else cout << "Fit successful" << endl;
+        cout << minimizer.finalPoint[0] << " - " << minimizer.finalPoint[1] << " -- " << minimizer.minValue << endl;
     
+        this->frictionC = minimizer.finalPoint[0];
+        this->frictionA = minimizer.finalPoint[1];
+    }
     this->updatedFriction = true;
-    this->frictionC = minimizer.finalPoint[0];
-    this->frictionA = minimizer.finalPoint[1];
 }
 
 
@@ -194,7 +197,7 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     this->simpleSim.set_dtime(d*this->relativeDtime/speed);
     
     // Read the friction values
-    //this->update_values();
+    this->update_values();
     this->simpleSim.set_friction(this->frictionC, this->frictionA);
     
     // Error constants

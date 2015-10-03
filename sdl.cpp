@@ -25,6 +25,7 @@
  */
 
 #include <iostream>
+#include <cmath>
 #include <list>
 #include <random>
 #include <string>
@@ -36,6 +37,8 @@
 #include "worldSim.hpp"
 
 #include "EmptyApp.hpp"
+
+#define LATITUDE 45
 
 using namespace std;
 
@@ -51,14 +54,17 @@ private:
     
     void draw_cross(double x, double y)
     {
-        int sx = (int)(((x-this->border_w)*(this->width-20))/(this->border_e-this->border_w)) + 10;
-        int sy = (int)(((y-this->border_s)*(this->height-20))/(this->border_n-this->border_s)) + 10;
+        int sx = (int)(((-x-this->border_w)*(this->width-20))/(this->border_e-this->border_w)) + 10;
+        int sy = (int)(((-y-this->border_s)*(this->height-20))/(this->border_n-this->border_s)) + 10;
         
         SDL_RenderDrawLine(this->renderer, sx - 10, sy, sx + 10, sy);
         SDL_RenderDrawLine(this->renderer, sx, sy-10, sx, sy+10);
     }
     
     Computer computer;
+    random_device rd;
+    WorldSimulator w;
+    
     bool fireOrder = false;
     
     void fire()
@@ -66,47 +72,30 @@ private:
         if (fireOrder)
         {
             fireOrder = false;
-            Launch l;
-            try
+            if (isfinite(desired.x) && isfinite(desired.y))
             {
-                l = this->computer.calculate_launch_params(this->desired, 1e3);
+                Launch l;
+                try
+                {
+                    l = this->computer.calculate_launch_params(this->desired, 1e3);
+                }
+                catch (ComputerException e)
+                {
+                    cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
+                    return;
+                }
+                w.set_seed(rd());
+                Event e = w.simulate(l);
+                cout << e << endl;
+                this->add_event(e);
+                this->computer.add_event(e);
             }
-            catch (ComputerException e)
+            else
             {
-                cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
-                return;
+                cout << "Select a valid target" << endl;
             }
-            random_device rd;
-            WorldSimulator w(0.02, 2e-2, 0, 45,rd());
-            w.set_friction_sigmas(0, 0);
-            Event e = w.simulate(l);
-            cout << e << endl;
-            this->add_event(e);
-            this->computer.add_event(e);
-            this->computer.update_values();
         }
     }
-    
-    /*void check_size(Target t)
-    {
-        return;
-        if (t.x > this->border_e)
-        {
-            this->border_e = t.x;
-        }
-        if (t.x < this->border_w)
-        {
-            this->border_w = t.x;
-        }
-        if (t.y > this->border_n)
-        {
-            this->border_n = t.y;
-        }
-        if (t.y < this->border_s)
-        {
-            this->border_s = t.y;
-        }
-    }*/
 
 
 public:
@@ -117,15 +106,14 @@ public:
             border_n(sizey),
             border_e(-sizex),
             border_w(sizex),
-            computer(45,0,0)
-    {
-        //this->check_size(Target(0,0));
-        //this->check_size(desired);
-    }
+            computer(LATITUDE,0,0),
+            w(1e-4, 0.02, 0, LATITUDE)
+            {}
     ~TargetApp()
     {
         this->history.clear();
     }
+    
     void add_event(Event e)
     {
         Target t = e.target;
@@ -134,12 +122,11 @@ public:
         {
             this->history.pop_front();
         }
-        //this->check_size(t);
     }
 
     virtual void on_render()
     {
-        // Create a white backgrund                                                                                                                                                                                 
+        // Create a black backgrund
         SDL_SetRenderDrawColor( this->renderer, 0x00,0x00,0x00,0xFF);   // black                                                                                                                                    
         SDL_RenderClear( this->renderer );
         
@@ -203,8 +190,8 @@ void TargetApp::on_event()
         case SDL_MOUSEBUTTONDOWN:
             if ((e.button.button == SDL_BUTTON_LEFT) && (e.button.state == SDL_PRESSED))
             {
-                double x = this->border_w + ((double)e.button.x -10)*(this->border_e-this->border_w)/(this->width-20);
-                double y = this->border_s + ((double)e.button.y -10)*(this->border_n-this->border_s)/(this->height-20);
+                double x = -(this->border_w + ((double)e.button.x -10)*(this->border_e-this->border_w)/(this->width-20));
+                double y = -(this->border_s + ((double)e.button.y -10)*(this->border_n-this->border_s)/(this->height-20));
                 this->desired = Target(x,y);
             }
             break;
@@ -219,12 +206,9 @@ int main (int argc, char** argv)
         return 1;
     }
     
-    //TargetApp(Target desired, int width, int height, std::string windowName): EmptyApp(width,height, windowName) , desired(desired) {};
     TargetApp app(600,600,atof(argv[1]),atof(argv[1]));
     app.run();
 
-    
-    
     
     return 0;
 }
