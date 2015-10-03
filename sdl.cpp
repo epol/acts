@@ -25,8 +25,9 @@
  */
 
 #include <iostream>
-#include <vector>
+#include <list>
 #include <random>
+#include <string>
 
 #include <SDL2/SDL.h>
 
@@ -41,12 +42,12 @@ using namespace std;
 class TargetApp : public EmptyApp
 {
 private:
-    vector<Target> history;
+    list<Target> history;
     Target desired;
-    double border_s = 0;
-    double border_n = 0;
-    double border_e = 0;
-    double border_w = 0;
+    double border_s;
+    double border_n;
+    double border_e;
+    double border_w;
     
     void draw_cross(double x, double y)
     {
@@ -73,19 +74,53 @@ private:
             catch (ComputerException e)
             {
                 cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
-                exit(1);
+                return;
             }
-            Event e = this->computer.simulate(l);
+            random_device rd;
+            WorldSimulator w(0.02, 2e-2, 0, 45,rd());
+            w.set_friction_sigmas(0, 0);
+            Event e = w.simulate(l);
+            cout << e << endl;
             this->add_event(e);
+            this->computer.add_event(e);
+            this->computer.update_values();
         }
     }
+    
+    /*void check_size(Target t)
+    {
+        return;
+        if (t.x > this->border_e)
+        {
+            this->border_e = t.x;
+        }
+        if (t.x < this->border_w)
+        {
+            this->border_w = t.x;
+        }
+        if (t.y > this->border_n)
+        {
+            this->border_n = t.y;
+        }
+        if (t.y < this->border_s)
+        {
+            this->border_s = t.y;
+        }
+    }*/
+
 
 public:
-    TargetApp(Target desired, int width, int height, std::string windowName): 
+    TargetApp(int width, int height, double sizex, double sizey,std::string windowName="ACTS"): 
             EmptyApp(width,height, windowName), 
-            desired(desired), 
-            computer(45,10,10)
+            desired(Target(NAN,NAN)), 
+            border_s(-sizey),
+            border_n(sizey),
+            border_e(-sizex),
+            border_w(sizex),
+            computer(45,0,0)
     {
+        //this->check_size(Target(0,0));
+        //this->check_size(desired);
     }
     ~TargetApp()
     {
@@ -95,22 +130,11 @@ public:
     {
         Target t = e.target;
         this->history.push_back(t);
-        if (t.x > border_e)
+        if (this->history.size() > 10)
         {
-            border_e = t.x;
+            this->history.pop_front();
         }
-        if (t.x < border_w)
-        {
-            border_w = t.x;
-        }
-        if (t.y > border_n)
-        {
-            border_n = t.y;
-        }
-        if (t.y < border_s)
-        {
-            border_s = t.y;
-        }
+        //this->check_size(t);
     }
 
     virtual void on_render()
@@ -119,27 +143,19 @@ public:
         SDL_SetRenderDrawColor( this->renderer, 0x00,0x00,0x00,0xFF);   // black                                                                                                                                    
         SDL_RenderClear( this->renderer );
         
-        SDL_SetRenderDrawColor( this->renderer, 0xFF, 0xFF, 0xFF, 0xFF ); // RGB alpha
-/*        if (SDL_RenderDrawPoint(this->renderer,
-                                (int)((this->border_w*this->width)/(this->border_e+this->border_w)),
-                                (int)((this->border_s*this->width)/(this->border_n+this->border_s))
-                                ) != 0)
-        {
-            cout << "Unable to render point, error: "<< SDL_GetError() << endl;
-        }*/
+        SDL_SetRenderDrawColor( this->renderer, 0x00, 0xFF, 0x00, 0xFF ); // RGB alpha
         this->draw_cross(0,0);
-        int alpha = 0xFF;
-        
-        for (vector<Target>::reverse_iterator i = this->history.rbegin() ; i != this->history.rend() ; ++i)
+        if ((desired.x != NAN) && (desired.y != NAN))
         {
-            SDL_SetRenderDrawColor( this->renderer, 0xFF, 0, 0, alpha );  // RGB alpha
-/*            if (SDL_RenderDrawPoint(renderer,
-                                    (int)(((i->x + this->border_w)*this->width)/(this->border_e+this->border_w)),
-                                    (int)(((i->y + this->border_s)*this->height)/(this->border_n+this->border_s))
-                                    ) != 0)
-            {
-                cout << "Unable to render point, error: "<< SDL_GetError() << endl;
-            }*/
+            SDL_SetRenderDrawColor( this->renderer, 0xFF, 0x00, 0x00, 0xFF );
+            this->draw_cross(this->desired.x,this->desired.y);
+        }
+        
+        
+        int alpha = 0xFF;
+        for (list<Target>::reverse_iterator i = this->history.rbegin() ; i != this->history.rend() ; ++i)
+        {
+            SDL_SetRenderDrawColor( this->renderer, 0xFF, 0xFF, 0x00, alpha );  // RGB alpha
             this->draw_cross(i->x,i->y);
             alpha /=2;
         }
@@ -154,7 +170,18 @@ public:
         fire();
     }
     virtual void on_event();
-//    virtual bool init();
+    virtual bool init()
+    {
+        if (EmptyApp::init())
+        {
+            SDL_SetRenderDrawBlendMode(this->renderer,SDL_BLENDMODE_BLEND);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 };
 
 void TargetApp::on_event()
@@ -165,42 +192,35 @@ void TargetApp::on_event()
     while (SDL_PollEvent(&e) != 0)
     {
         //quit event
-        if (e.type == SDL_QUIT)
+        switch(e.type)
         {
+        case SDL_QUIT:
             this->running = false;
-        }
-        if (e.type == SDL_KEYDOWN)
-        {
+            break;
+        case SDL_KEYDOWN:
             this->fireOrder = true;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            if ((e.button.button == SDL_BUTTON_LEFT) && (e.button.state == SDL_PRESSED))
+            {
+                double x = this->border_w + ((double)e.button.x -10)*(this->border_e-this->border_w)/(this->width-20);
+                double y = this->border_s + ((double)e.button.y -10)*(this->border_n-this->border_s)/(this->height-20);
+                this->desired = Target(x,y);
+            }
+            break;
         }
     }
 }
 
 int main (int argc, char** argv)
 {
-    if (argc < 3) {
-        cout << "You need to provide 2 arguments (x,y) for targeting" << endl;
+    if (argc < 2) {
+        cout << "You need to provide the screen size" << endl;
         return 1;
     }
     
-    Computer c(45, 10, 10);
-    Target t = Target(atof(argv[1]), atof(argv[2]));
-    Launch l;
-    try
-    {
-        l = c.calculate_launch_params(t, 1e3);
-    }
-    catch (ComputerException e)
-    {
-        cout << "Error calculating the launching parameters: " << e.show_reason() << endl;
-        exit(1);
-    }
-    Event e = c.simulate(l);
-    
-    
     //TargetApp(Target desired, int width, int height, std::string windowName): EmptyApp(width,height, windowName) , desired(desired) {};
-    TargetApp app(t,600,600, "ACTS");
-    app.add_event(e);
+    TargetApp app(600,600,atof(argv[1]),atof(argv[1]));
     app.run();
 
     
