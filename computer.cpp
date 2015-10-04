@@ -267,7 +267,7 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     
     if ((error > eps2*d) || !isfinite(theta) || !isfinite(phi))
     {
-        // We hit too far from the target, maybe we haven't enough power? TODO: maybe some better condition?
+        // We hit too far from the target, maybe we haven't enough power?
         throw ComputerException(ComputerException::LOWPOWER);
     }
     

@@ -24,7 +24,7 @@
 
 
 CXX=g++ -std=gnu++11
-CPPFLAGS=-g -Og -Wall -Wextra -pedantic -lgsl -lgslcblas -lm
+CPPFLAGS=-g -O2 -Wall -Wextra -pedantic -lgsl -lgslcblas -lm
 OBJS=utilities.o simulator.o worldSim.o computer.o
 SDLFLAGS=-D_REENTRANT -I/usr/include/SDL2 -lSDL2 -lpthread
 

@@ -32,9 +32,8 @@ Vec3D Simulator::calculate_nonfriction(const Vec3D position, const Vec3D velocit
 // Calculate all the non-friction accelerations (gravity & non-inertial)
 {
     Vec3D vecGravity = Vec3D(0, 0, -gravity);
-    Vec3D vecCoriolis = -2 * this->omega ^ velocity;
-    Vec3D vecCentrifugal = - this->omega ^ (this->omega ^ position);
-    return vecGravity + vecCoriolis + vecCentrifugal;
+    Vec3D vecNonInertial = - this->omega ^ ( 2 * velocity + (this->omega ^ position) );
+    return vecGravity + vecNonInertial;
 }
 
 Event Simulator::simulate (const Launch launch)

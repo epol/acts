@@ -71,7 +71,7 @@ private:
         if (fireOrder)
         {
             fireOrder = false;
-            if (isfinite(desired.x) && isfinite(desired.y))
+            if (isfinite(this->desired.x) && isfinite(this->desired.y))
             {
                 if (this->desired.distance() < 10)
                 {
@@ -92,8 +92,8 @@ private:
                     return;
                 }
                 cout << "Expected event:  " << Event(l, this->desired, -1) << endl;
-                w.set_seed(rd());
-                Event e = w.simulate(l);
+                this->w.set_seed(rd());
+                Event e = this->w.simulate(l);
                 cout << "Real event:      " << e << endl << endl;
                 this->add_event(e);
                 this->computer.add_event(e);
@@ -142,7 +142,7 @@ public:
         
         SDL_SetRenderDrawColor( this->renderer, 0x00, 0xFF, 0x00, 0xFF ); // RGB alpha
         this->draw_cross(0,0);
-        if ((desired.x != NAN) && (desired.y != NAN))
+        if ((this->desired.x != NAN) && (this->desired.y != NAN))
         {
             SDL_SetRenderDrawColor( this->renderer, 0xFF, 0x00, 0x00, 0xFF );
             this->draw_cross(this->desired.x,this->desired.y);
@@ -195,7 +195,13 @@ void TargetApp::on_event()
             this->running = false;
             break;
         case SDL_KEYDOWN:
-            this->fireOrder = true;
+            switch(e.key.keysym.sym)
+            {
+            case SDLK_SPACE:
+            case SDLK_f:
+                this->fireOrder = true;
+                break;
+            }
             break;
         case SDL_MOUSEBUTTONDOWN:
             if ((e.button.button == SDL_BUTTON_LEFT) && (e.button.state == SDL_PRESSED))

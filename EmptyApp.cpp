@@ -114,7 +114,7 @@ void EmptyApp::on_event()
         //quit event
         if (e.type == SDL_QUIT)
         {
-            running = false;
+            this->running = false;
         }
     }
 }
