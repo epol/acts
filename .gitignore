@@ -29,3 +29,10 @@
 test
 acts
 
+# emacs
+*~
+
+# Latex
+*.aux
+*.pdf
+*.log
