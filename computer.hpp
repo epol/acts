@@ -150,6 +150,11 @@ public:
         return this->simpleSim.simulate(launch);
     }
     
+    inline void set_dtime(const double distance,const double speed)
+    {
+        this->simpleSim.set_dtime(distance*this->relativeDtime/speed);
+    }
+    
     EventMemory* get_memory()
     {
         return &(this->memory);

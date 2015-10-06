@@ -100,6 +100,7 @@ double chi2 (const gsl_vector *v, void *params)
     for (int i=0; i< m->size(); ++i)
     {
         Event ev_real = m->get()[i];
+        comp->set_dtime(ev_real.target.distance(), ev_real.launch.speed);
         Event ev_sim = comp->simulate(ev_real.launch);
         
         Target delta = ev_real.target - ev_sim.target;
@@ -194,12 +195,12 @@ Launch Computer::calculate_launch_params(const Target target, const double speed
     double theta = .5*asin(gd/(speed*speed));
     double phi = target.phi();
     
-    // Update the simultor dtime
-    this->simpleSim.set_dtime(d*this->relativeDtime/speed);
-    
     // Read the friction values
     this->update_values();
     this->simpleSim.set_friction(this->friction1, this->friction2);
+
+    // Update the simultor dtime
+    this->set_dtime(d,speed);
     
     // Error constants
     double eps = 1e-5;
