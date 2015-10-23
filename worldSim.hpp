@@ -47,12 +47,12 @@ public:
     WorldSimulator(const double dtime, const double friction1, const double friction2, const double latitude):
         Simulator(dtime, friction1, friction2, latitude) {}
     
-    inline void set_seed(uint seed)
+    inline void set_seed(unsigned int seed)
     {
         this->g = std::default_random_engine(seed);
     }
     
-    WorldSimulator(const double dtime, const double friction1, const double friction2, const double latitude, uint seed):
+    WorldSimulator(const double dtime, const double friction1, const double friction2, const double latitude, unsigned int seed):
         WorldSimulator(dtime, friction1, friction2, latitude)
     {
         this->set_seed(seed);
